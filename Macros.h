@@ -1,4 +1,3 @@
-
 #pragma once
 #include<exception>
 #include<string>
@@ -8,7 +7,7 @@
 #define _CONSTEXPR constexpr
 #define _PANAGIOTIS_BEGIN namespace panagiotis{
 #define _PANAGIOTIS_END }
-
+#if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 
 class pop_from_an_empty_list :public std::exception
@@ -80,3 +79,4 @@ concept Can_Be_Sorted = requires(_Ty a, _Ty b) {
 //end
 
 _PANAGIOTIS_END
+#endif
