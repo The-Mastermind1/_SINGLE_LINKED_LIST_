@@ -8,6 +8,7 @@
 #include<initializer_list>
 #include<queue>
 #include<vector>
+#if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
 class SingleLinkedList {
@@ -553,3 +554,4 @@ public:
 
 
 _PANAGIOTIS_END
+#endif
