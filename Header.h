@@ -11,9 +11,9 @@
 #if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
-class SingleLinkedList {
+class SingleLinkedList final {
 private:
-	class ListNode {
+	class ListNode final {
 	public:
 		_Ty data;
 		ListNode* next;
