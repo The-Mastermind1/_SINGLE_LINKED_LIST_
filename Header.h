@@ -1,5 +1,5 @@
 #pragma once
-#include"Macros.h"
+#include"Header1.h"
 #include<iostream>
 #include<utility>
 #include<cstdlib>
@@ -8,28 +8,39 @@
 #include<initializer_list>
 #include<queue>
 #include<vector>
-#if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
-class SingleLinkedList final {
+class SingleLinkedList {
 private:
-	class ListNode final {
+	class ListNode {
+	private:
+		class secretClass {};
+		template<class ..._Valty>
+		ListNode(secretClass,_Valty&& ..._Val):data{std::forward<_Valty>(_Val)...}, next{nullptr}
+		{
+			//constructs the object in place
+		}
 	public:
 		_Ty data;
 		ListNode* next;
-		ListNode()noexcept :data{}, next{ nullptr }
-		{
-
-		}
 		ListNode(const _Ty& item)noexcept(noexcept(data = item))
 			:next{ nullptr }
 		{
+			
 			data = item;
 		}
 		ListNode(_Ty&& item) noexcept(noexcept(data = std::move(item)))
 			:next{ nullptr }
 		{
+			
 			data = std::move(item);
+		}
+		template<class ..._Valty>
+		static ListNode* craft(_Valty&& ..._Val) {
+			
+			ListNode* ptr = new ListNode{secretClass{},std::forward<_Valty>(_Val)...};
+			return ptr;
+			
 		}
 	};
 	std::size_t count;
@@ -455,7 +466,6 @@ public:
 		if (tail == nullptr)return nodeCount;
 		while (tail->data == val) {
 			nodeCount++;
-			
 			this->pop_back();
 		}
 		
@@ -470,6 +480,7 @@ public:
 					nodeCount++;
 					ListNode* ptr2 = ptr->next;
 					ptr->next = ptr->next->next;
+					
 					delete ptr2;
 					count--;
 				}
@@ -532,6 +543,7 @@ public:
 		while (ptr != nullptr) {
 			if constexpr (std::is_move_constructible_v<_Ty>) {
 				a.push(std::move(ptr->data));
+				
 			}
 			else if constexpr(std::is_copy_constructible_v<_Ty>) {
 				a.push(ptr->data);
@@ -547,6 +559,28 @@ public:
 		
 		return;
 	}
+	template<class ..._Valty>
+	bool emplace_back(_Valty&&..._Val) {
+	
+		ListNode*ptr=ListNode::craft(std::forward<_Valty>(_Val)...);
+
+		if (count != 0) {
+			if (ptr != nullptr) {
+				tail->next = ptr;
+				tail = tail->next;
+				count++;
+				return true;
+			}
+		}
+		else {
+			if (ptr != nullptr) {
+				head = tail = ptr;
+				count++;
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	
 
@@ -554,4 +588,3 @@ public:
 
 
 _PANAGIOTIS_END
-#endif
