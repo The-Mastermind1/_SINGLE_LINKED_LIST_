@@ -497,39 +497,27 @@ public:
 	}
 	void reverse()noexcept {
 		if (count > 1) {
-			ListNode* ptr1 = head;
-			ListNode* ptr2 = head->next;
-			ListNode* newHead = nullptr;
-			std::size_t count1 = 0;
-			while (ptr2 != nullptr) {
-				if (count1 == 0) {
-					count1++;
-					ListNode* ptr = ptr2->next;
-					ptr2->next = ptr1;
-					ptr1->next = ptr;
-					newHead = ptr2;
-					ptr2 = ptr1->next;
-				}
-				else {
-					ListNode* ptr = ptr2->next;
-					ptr2->next = newHead;
-					ptr1->next = ptr;
-					newHead = ptr2;
-					ptr2 = ptr1->next;
-				}
-
-
+			tail->next = head;
+			head = head->next;
+			tail->next->next = nullptr;
+			ListNode* ptr{ head };
+			while (ptr != tail) {
+			
+				ptr = ptr->next;
+				head->next = tail->next;
+				tail->next = head;
 
 			}
-			head = newHead;
-			tail = newHead;
-			if (tail == nullptr)return;
-			for (std::size_t i = 0; i < count - 1; i++) {
+			head = tail;
+			while (tail->next != nullptr) {
 				tail = tail->next;
 			}
-
 		}
+		return;
+
+	
 	}
+	
 
 	void sort() 
 	{
