@@ -499,6 +499,7 @@ public:
 		if (count > 1) {
 			tail->next = head;
 			head = head->next;
+			ListNode* newTail = tail->next;
 			tail->next->next = nullptr;
 			ListNode* ptr{ head };
 			while (ptr != tail) {
@@ -509,11 +510,9 @@ public:
 
 			}
 			head = tail;
-			while (tail->next != nullptr) {
-				tail = tail->next;
-			}
+			tail = newTail;
 		}
-		return;
+	
 
 	
 	}
