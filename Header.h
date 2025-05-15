@@ -9,7 +9,7 @@
 #include<queue>
 #include<vector>
 _PANAGIOTIS_BEGIN
-#if __cplusplus > 202002L
+//#if __cplusplus > 202002L
 template<typename _Ty>
 class SingleLinkedList {
 private:
@@ -17,7 +17,7 @@ private:
 	private:
 		class secretClass {};
 		template<class ..._Valty>
-		ListNode(secretClass,_Valty&& ..._Val):data{std::forward<_Valty>(_Val)...}, next{nullptr}
+		ListNode(secretClass, _Valty&& ..._Val) :data{ std::forward<_Valty>(_Val)... }, next{ nullptr }
 		{
 			//constructs the object in place
 		}
@@ -27,21 +27,21 @@ private:
 		ListNode(const _Ty& item)noexcept(noexcept(data = item))
 			:next{ nullptr }
 		{
-			
+
 			data = item;
 		}
 		ListNode(_Ty&& item) noexcept(noexcept(data = std::move(item)))
 			:next{ nullptr }
 		{
-			
+
 			data = std::move(item);
 		}
 		template<class ..._Valty>
 		static ListNode* craft(_Valty&& ..._Val) {
-			
-			ListNode* ptr = new ListNode{secretClass{},std::forward<_Valty>(_Val)...};
+
+			ListNode* ptr = new ListNode{ secretClass{},std::forward<_Valty>(_Val)... };
 			return ptr;
-			
+
 		}
 	};
 	std::size_t count;
@@ -74,26 +74,15 @@ public:
 	SingleLinkedList(const SingleLinkedList<_Ty>& other) :count{ 0 }, head{ nullptr }, tail{ nullptr }
 	{
 		if (this != &other) {
-			if (other.count != 0) {//exei na mas dosei kati o allos 
-				ListNode* ptr = other.head;
-				head = new (std::nothrow)ListNode(ptr->data);
-				if (head != nullptr) {
-					tail = head;
-					count++;
+			ListNode* ptr1{ other.head };
 
-					for (std::size_t i = 1; i < other.count; i++) {
-						tail->next = new (std::nothrow)ListNode(ptr->next->data);
-						if (tail->next != nullptr) {
-							ptr = ptr->next;
-							tail = tail->next;
-							count++;
-						}
-						else {
-							this->~SingleLinkedList();
-							break;
-						}
-					}
+			while (ptr1 != nullptr) {
+
+				if (!this->emplace_back(ptr1->data)) {
+					this->~SingleLinkedList();
+					break;
 				}
+				ptr1 = ptr1->next;
 
 			}
 		}
@@ -109,7 +98,7 @@ public:
 		}
 	}
 
-	bool push_back(const _Ty&data)
+	bool push_back(const _Ty& data)
 	{
 		ListNode* ptr = new (std::nothrow)ListNode(data);
 		if (count != 0) {
@@ -129,7 +118,7 @@ public:
 		}
 		return false;
 	}
-	bool push_back( _Ty&& data)
+	bool push_back(_Ty&& data)
 	{
 		ListNode* ptr = new (std::nothrow)ListNode(std::move(data));
 		if (count != 0) {
@@ -149,7 +138,7 @@ public:
 		}
 		return false;
 	}
-	bool push_front(const _Ty&data) {
+	bool push_front(const _Ty& data) {
 		ListNode* ptr = new (std::nothrow)ListNode(data);
 		if (count != 0) {
 			if (ptr != nullptr) {
@@ -168,7 +157,7 @@ public:
 		}
 		return false;
 	}
-	bool push_front(_Ty&&data) {
+	bool push_front(_Ty&& data) {
 		ListNode* ptr = new (std::nothrow)ListNode(std::move(data));
 		if (count != 0) {
 			if (ptr != nullptr) {
@@ -187,7 +176,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	void pop_front()
 	{
 		if (count != 0) {
@@ -203,7 +192,7 @@ public:
 			throw pop_from_an_empty_list{ "tried to pop from an empty list" };
 		}
 	}
-	void pop_back() 
+	void pop_back()
 	{
 		if (count != 0) {
 			delete tail;
@@ -214,9 +203,9 @@ public:
 				return;
 			}
 			tail = head;
-			
-			
-			for (std::size_t i = 0; i < count-1 ; i++) {
+
+
+			for (std::size_t i = 0; i < count - 1; i++) {
 				tail = tail->next;
 			}
 			tail->next = nullptr;
@@ -299,143 +288,87 @@ public:
 		}
 	}
 	~SingleLinkedList()noexcept {
-		ListNode* ptr ;
+
+		ListNode* ptr;
 		for (std::size_t i = 0; i < count; i++) {
-			
+			std::cout << head->data << '\n';
 			ptr = head;
 			head = head->next;
 			delete ptr;
 		}
 		head = tail = nullptr;
 		count = 0;
+
 	}
 	void clear()noexcept {
 		this->~SingleLinkedList();
 	}
-	void swap(SingleLinkedList&other)noexcept {
+	void swap(SingleLinkedList& other)noexcept {
 		std::swap(head, other.head);
 		std::swap(tail, other.tail);
 		std::swap(count, other.count);
 	}
-	SingleLinkedList<_Ty>& operator =(const SingleLinkedList<_Ty>& other)&
-	{//copy constructor 
-		if (this == &other)return *this;
-		if (other.count != 0) {
-			if (count == 0) {
-				ListNode* ptr = other.head;
-				head = new (std::nothrow)ListNode(ptr->data);
-				if (head != nullptr) {
-					tail = head;
-					count++;
+	SingleLinkedList<_Ty>& operator =(const SingleLinkedList<_Ty>& other)& {
+		if (this != &other) {
+			ListNode* curr1{ head }, * prev1{ nullptr };
+			ListNode* curr2{ other.head }, * prev2{ nullptr };
 
-					for (std::size_t i = 1; i < other.count; i++) {
-						tail->next = new (std::nothrow)ListNode(ptr->next->data);
-						if (tail->next != nullptr) {
-							ptr = ptr->next;
-							tail = tail->next;
-							count++;
-						}
-						else {
-							this->~SingleLinkedList();
-							break;
-						}
+			while (curr1 != nullptr && curr2 != nullptr) {
+
+				curr1->data = curr2->data;
+				prev1 = curr1;
+				prev2 = curr2;
+				curr1 = curr1->next;
+				curr2 = curr2->next;
+
+			}
+
+			if (prev1 == nullptr && curr2 != nullptr) {//o allos exei na mas dosei
+
+				while (curr2 != nullptr) {
+
+					if (!this->emplace_back(curr2->data)) {
+						break;
 					}
+					curr2 = curr2->next;
+				}
+				return *this;
+
+			}
+			if (prev2 == nullptr && curr1 != nullptr) { //exoume perrita
+
+				this->~SingleLinkedList();
+				return *this;
+			}
+			if (curr1 != nullptr && curr2 == nullptr) {
+
+				tail = prev1;
+				tail->next = nullptr;
+				while (curr1 != nullptr) {
+					ListNode* ptr{ curr1 };
+					curr1 = curr1->next;
+					delete ptr;
+					count--;
+
 				}
 				return *this;
 			}
-			else {
-
-				ListNode* ptr1 = head;
-				ListNode* ptr2 = other.head;
-				while (ptr1 != nullptr && ptr2 != nullptr) {
-
-					while (ptr1->next != nullptr && ptr2->next != nullptr) {
-						ptr1->data = ptr2->data;
-						ptr1 = ptr1->next;
-						ptr2 = ptr2->next;
-					}
-					ptr1->data = ptr2->data;
-					break;
-
-				}
-				/*if (count == other.count) {
-					Queue_Node* ptr1 = head;
-					Queue_Node* ptr2 = other.head;
-					while (ptr1 != nullptr && ptr2 != nullptr) {
-						ptr1->data = ptr2->data;
-						ptr1 = ptr1->next;
-						ptr2 = ptr2->next;
-
-					}
-					return *this;
-				}*/
-				if (count < other.count) {
-					/*Queue_Node* ptr1 = head;
-					Queue_Node* ptr2 = other.head;
-					while (ptr1 != nullptr && ptr2 != nullptr) {
-
-						while (ptr1->next != nullptr && ptr2->next != nullptr) {
-							ptr1->data = ptr2->data;
-							ptr1 = ptr1->next;
-							ptr2 = ptr2->next;
-						}
-						ptr1->data = ptr2->data;
+			if (curr2 != nullptr && curr1 == nullptr) {
+				while (curr2 != nullptr) {
+					std::cout << "pateras" << '\n';
+					if (!this->emplace_back(curr2->data)) {
+						this->~SingleLinkedList();
 						break;
-
-					}*/
-					ptr2 = ptr2->next;
-					while (ptr2 != nullptr) {
-						
-						if (push_back(ptr2->data)) {
-							ptr2 = ptr2->next;
-
-						}
-						else {
-							this->~SingleLinkedList();
-							break;
-						}
-
-
 					}
-					return *this;
-				}
-				else if (count > other.count) {
-					/*Queue_Node* ptr1 = head;
-					Queue_Node* ptr2 = other.head;
-					while (ptr1 != nullptr && ptr2 != nullptr) {
-
-						while (ptr1->next != nullptr && ptr2->next != nullptr) {
-							ptr1->data = ptr2->data;
-							ptr1 = ptr1->next;
-							ptr2 = ptr2->next;
-						}
-						ptr1->data = ptr2->data;
-						break;
-
-					}*/
-					tail = ptr1;
-					
-					ptr1 = ptr1->next;
-					while (ptr1 != nullptr) {
-
-						ListNode* ptr = ptr1;
-						ptr1 = ptr1->next;
-						delete ptr;
-						count--;
-					}
-					tail->next = nullptr;
-					return *this;
-					
+					curr2 = curr2->next;
 				}
 				return *this;
 			}
 
-		}
-		else {
-			this->~SingleLinkedList();
-			return *this;
-		}
 
+
+		}
+		return *this;
 	}
 
 	SingleLinkedList<_Ty>& operator =(SingleLinkedList<_Ty>&& other) & noexcept
@@ -452,8 +385,8 @@ public:
 	}
 
 	std::size_t remove(const _Ty& val) {
-		static_assert(Comparable<_Ty>,"type must support == operator");
-		
+		static_assert(Comparable<_Ty>, "type must support == operator");
+
 		std::size_t nodeCount = 0;
 		if (count == 1) {
 			if (head->data == val)this->~SingleLinkedList();
@@ -469,19 +402,19 @@ public:
 			nodeCount++;
 			this->pop_back();
 		}
-		
-		
+
+
 		ListNode* ptr = head;
-		
+
 		while (ptr != nullptr) {
 			while (ptr->next != nullptr) {
-				
+
 				if (ptr->next->data == val) {
-					
+
 					nodeCount++;
 					ListNode* ptr2 = ptr->next;
 					ptr->next = ptr->next->next;
-					
+
 					delete ptr2;
 					count--;
 				}
@@ -497,60 +430,57 @@ public:
 	}
 	void reverse()noexcept {
 		if (count > 1) {
-			tail->next = head;
-			head = head->next;
-			ListNode* newTail = tail->next;
-			tail->next->next = nullptr;
-			ListNode* ptr{ head };
-			while (ptr != tail) {
-			
-				ptr = ptr->next;
-				head->next = tail->next;
-				tail->next = head;
+			ListNode* prev = nullptr;
+			ListNode* curr = head;
+			tail = head;
 
+			while (curr != nullptr) {
+				ListNode* next = curr->next;
+				curr->next = prev;
+				prev = curr;
+				curr = next;
 			}
-			head = tail;
-			tail = newTail;
+
+			head = prev;
 		}
-	
 
-	
+
+
 	}
-	
 
-	void sort() 
+	void sort()
 	{
 		static_assert(Can_Be_Sorted<_Ty>,
 			"In order to use this func this type must be sortable");
-		static_assert(std::is_move_constructible_v<_Ty> || 
+		static_assert(std::is_move_constructible_v<_Ty> ||
 			std::is_copy_constructible_v<_Ty>,
 			"the type must be either copy constructible or move constructible");
 
 		ListNode* ptr = head;
-		std::priority_queue<_Ty,std::vector<_Ty>,std::greater<_Ty>>a;
+		std::priority_queue<_Ty, std::vector<_Ty>, std::greater<_Ty>>a;
 		while (ptr != nullptr) {
 			if constexpr (std::is_move_constructible_v<_Ty>) {
 				a.push(std::move(ptr->data));
-				
+
 			}
-			else if constexpr(std::is_copy_constructible_v<_Ty>) {
+			else if constexpr (std::is_copy_constructible_v<_Ty>) {
 				a.push(ptr->data);
 			}
 			ptr = ptr->next;
 		}
 		ptr = head;
-		while(ptr!=nullptr){
-			ptr->data =a.top();
+		while (ptr != nullptr) {
+			ptr->data = a.top();
 			a.pop();
 			ptr = ptr->next;
 		}
-		
+
 		return;
 	}
 	template<class ..._Valty>
 	bool emplace_back(_Valty&&..._Val) {
-	
-		ListNode*ptr=ListNode::craft(std::forward<_Valty>(_Val)...);
+
+		ListNode* ptr = ListNode::craft(std::forward<_Valty>(_Val)...);
 
 		if (count != 0) {
 			if (ptr != nullptr) {
@@ -569,10 +499,10 @@ public:
 		}
 		return false;
 	}
-	
-	
+
+
 
 };
 
-#endif
+//#endif
 _PANAGIOTIS_END
