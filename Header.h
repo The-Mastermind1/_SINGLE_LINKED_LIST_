@@ -9,7 +9,7 @@
 #include<queue>
 #include<vector>
 _PANAGIOTIS_BEGIN
-//#if __cplusplus > 202002L
+#if __cplusplus > 202002L
 template<typename _Ty>
 class SingleLinkedList {
 private:
@@ -79,7 +79,7 @@ public:
 			while (ptr1 != nullptr) {
 
 				if (!this->emplace_back(ptr1->data)) {
-					this->~SingleLinkedList();
+					this->clear();
 					break;
 				}
 				ptr1 = ptr1->next;
@@ -288,20 +288,17 @@ public:
 		}
 	}
 	~SingleLinkedList()noexcept {
-
+		this->clear();
+	}
+	void clear()noexcept {
 		ListNode* ptr;
 		for (std::size_t i = 0; i < count; i++) {
-			std::cout << head->data << '\n';
 			ptr = head;
 			head = head->next;
 			delete ptr;
 		}
 		head = tail = nullptr;
 		count = 0;
-
-	}
-	void clear()noexcept {
-		this->~SingleLinkedList();
 	}
 	void swap(SingleLinkedList& other)noexcept {
 		std::swap(head, other.head);
@@ -336,8 +333,8 @@ public:
 
 			}
 			if (prev2 == nullptr && curr1 != nullptr) { //exoume perrita
-
-				this->~SingleLinkedList();
+				
+				this->clear();
 				return *this;
 			}
 			if (curr1 != nullptr && curr2 == nullptr) {
@@ -355,9 +352,9 @@ public:
 			}
 			if (curr2 != nullptr && curr1 == nullptr) {
 				while (curr2 != nullptr) {
-					std::cout << "pateras" << '\n';
+				
 					if (!this->emplace_back(curr2->data)) {
-						this->~SingleLinkedList();
+						this->clear();
 						break;
 					}
 					curr2 = curr2->next;
@@ -373,7 +370,7 @@ public:
 
 	SingleLinkedList<_Ty>& operator =(SingleLinkedList<_Ty>&& other) & noexcept
 	{
-		this->~SingleLinkedList();
+		this->clear();
 		if (other.count != 0) {
 			head = other.head;
 			tail = other.tail;
@@ -504,5 +501,5 @@ public:
 
 };
 
-//#endif
+#endif
 _PANAGIOTIS_END
