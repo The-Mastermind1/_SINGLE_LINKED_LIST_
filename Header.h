@@ -1,3 +1,4 @@
+
 #pragma once
 #include"Header1.h"
 #include<iostream>
@@ -9,7 +10,7 @@
 #include<queue>
 #include<vector>
 _PANAGIOTIS_BEGIN
-#if __cplusplus > 202002L
+
 template<typename _Ty>
 class SingleLinkedList {
 private:
@@ -333,7 +334,7 @@ public:
 
 			}
 			if (prev2 == nullptr && curr1 != nullptr) { //exoume perrita
-				
+
 				this->clear();
 				return *this;
 			}
@@ -352,7 +353,7 @@ public:
 			}
 			if (curr2 != nullptr && curr1 == nullptr) {
 				while (curr2 != nullptr) {
-				
+
 					if (!this->emplace_back(curr2->data)) {
 						this->clear();
 						break;
@@ -445,35 +446,7 @@ public:
 
 	}
 
-	void sort()
-	{
-		static_assert(Can_Be_Sorted<_Ty>,
-			"In order to use this func this type must be sortable");
-		static_assert(std::is_move_constructible_v<_Ty> ||
-			std::is_copy_constructible_v<_Ty>,
-			"the type must be either copy constructible or move constructible");
-
-		ListNode* ptr = head;
-		std::priority_queue<_Ty, std::vector<_Ty>, std::greater<_Ty>>a;
-		while (ptr != nullptr) {
-			if constexpr (std::is_move_constructible_v<_Ty>) {
-				a.push(std::move(ptr->data));
-
-			}
-			else if constexpr (std::is_copy_constructible_v<_Ty>) {
-				a.push(ptr->data);
-			}
-			ptr = ptr->next;
-		}
-		ptr = head;
-		while (ptr != nullptr) {
-			ptr->data = a.top();
-			a.pop();
-			ptr = ptr->next;
-		}
-
-		return;
-	}
+	
 	template<class ..._Valty>
 	bool emplace_back(_Valty&&..._Val) {
 
@@ -496,10 +469,33 @@ public:
 		}
 		return false;
 	}
+	template<class ..._Valty>
+	bool emplace_front(_Valty&&..._Val) {
+
+		ListNode* ptr = ListNode::craft(std::forward<_Valty>(_Val)...);
+
+		if (count != 0) {
+			if (ptr != nullptr) {
+				ptr->next = head;
+				head = ptr;
+				count++;
+				return true;
+			}
+		}
+		else {
+			if (ptr != nullptr) {
+				head = tail = ptr;
+				count++;
+				return true;
+			}
+		}
+		return false;
+	}
+	
 
 
 
 };
 
-#endif
+
 _PANAGIOTIS_END
