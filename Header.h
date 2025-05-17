@@ -10,7 +10,7 @@
 #include<queue>
 #include<vector>
 _PANAGIOTIS_BEGIN
-#if __cplusplus > 202002L
+
 template<typename _Ty>
 class SingleLinkedList {
 private:
@@ -491,11 +491,41 @@ public:
 		}
 		return false;
 	}
+
+	bool insert(const _Ty& val) {
+		ListNode* curr{ head };
+		ListNode* prev{ nullptr };
+		
+		while (curr != nullptr && curr->data < val) {
+			prev = curr;
+			curr = curr->next;
+
+		}
+		ListNode* ptr = new ListNode(val);
+		if (ptr == nullptr)return false;
+		count++;
+		if (prev == nullptr) {
+			head = ptr;
+			head->next = curr;
+			if (curr == nullptr) { tail = ptr; }
+		}
+		else {
+			prev->next = ptr;
+			ptr->next = curr;
+			if (curr == nullptr) {
+				tail = ptr;
+			}
+
+		}
+
+		return true;
+	}
+	
 	
 
 
 
 };
 
-#endif
+
 _PANAGIOTIS_END
