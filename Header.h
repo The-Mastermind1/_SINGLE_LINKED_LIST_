@@ -1,4 +1,3 @@
-
 #pragma once
 #include"Header1.h"
 #include<iostream>
@@ -10,7 +9,7 @@
 #include<queue>
 #include<vector>
 _PANAGIOTIS_BEGIN
-#if __cplusplus > 202002L
+
 template<typename _Ty>
 class SingleLinkedList {
 private:
@@ -310,7 +309,7 @@ public:
 		if (this != &other) {
 			ListNode* curr1{ head }, * prev1{ nullptr };
 			ListNode* curr2{ other.head }, * prev2{ nullptr };
-
+			
 			while (curr1 != nullptr && curr2 != nullptr) {
 
 				curr1->data = curr2->data;
@@ -382,50 +381,50 @@ public:
 		return *this;
 	}
 
-	std::size_t remove(const _Ty& val) {
-		static_assert(Comparable<_Ty>, "type must support == operator");
+	//std::size_t remove(const _Ty& val) {
+	//	static_assert(Comparable<_Ty>, "type must support == operator");
 
-		std::size_t nodeCount = 0;
-		if (count == 1) {
-			if (head->data == val)this->~SingleLinkedList();
-			return 1;
-		}//polla nodes ara
-		while (head->data == val) {
-			nodeCount++;
-			this->pop_front();
-			if (head == nullptr)break;
-		}
-		if (tail == nullptr)return nodeCount;
-		while (tail->data == val) {
-			nodeCount++;
-			this->pop_back();
-		}
-
-
-		ListNode* ptr = head;
-
-		while (ptr != nullptr) {
-			while (ptr->next != nullptr) {
-
-				if (ptr->next->data == val) {
-
-					nodeCount++;
-					ListNode* ptr2 = ptr->next;
-					ptr->next = ptr->next->next;
-
-					delete ptr2;
-					count--;
-				}
-				else {
-					ptr = ptr->next;
-				}
-			}
-			break;
-		}
+	//	std::size_t nodeCount = 0;
+	//	if (count == 1) {
+	//		if (head->data == val)this->~SingleLinkedList();
+	//		return 1;
+	//	}//polla nodes ara
+	//	while (head->data == val) {
+	//		nodeCount++;
+	//		this->pop_front();
+	//		if (head == nullptr)break;
+	//	}
+	//	if (tail == nullptr)return nodeCount;
+	//	while (tail->data == val) {
+	//		nodeCount++;
+	//		this->pop_back();
+	//	}
 
 
-		return nodeCount;
-	}
+	//	ListNode* ptr = head;
+
+	//	while (ptr != nullptr) {
+	//		while (ptr->next != nullptr) {
+
+	//			if (ptr->next->data == val) {
+
+	//				nodeCount++;
+	//				ListNode* ptr2 = ptr->next;
+	//				ptr->next = ptr->next->next;
+
+	//				delete ptr2;
+	//				count--;
+	//			}
+	//			else {
+	//				ptr = ptr->next;
+	//			}
+	//		}
+	//		break;
+	//	}
+
+
+	//	return nodeCount;
+	//}
 	void reverse()noexcept {
 		if (count > 1) {
 			ListNode* prev = nullptr;
@@ -446,7 +445,7 @@ public:
 
 	}
 
-	
+
 	template<class ..._Valty>
 	bool emplace_back(_Valty&&..._Val) {
 
@@ -495,7 +494,7 @@ public:
 	bool insert(const _Ty& val) {
 		ListNode* curr{ head };
 		ListNode* prev{ nullptr };
-		
+
 		while (curr != nullptr && curr->data < val) {
 			prev = curr;
 			curr = curr->next;
@@ -520,12 +519,97 @@ public:
 
 		return true;
 	}
-	
-	
+	bool add_unique(const _Ty& val) {
+		ListNode* curr{ head };
+		ListNode* prev{ nullptr };
+
+		while (curr != nullptr && curr->data < val) {
+			prev = curr;
+			curr = curr->next;
+			
+		}
+		if (curr!=nullptr  &&curr->data==val) { return false; }
+		ListNode* ptr = new ListNode(val);
+		if (ptr == nullptr)return false;
+		count++;
+		if (prev == nullptr) {
+			head = ptr;
+			head->next = curr;
+			if (curr == nullptr) { tail = ptr; }
+		}
+		else {
+			prev->next = ptr;
+			ptr->next = curr;
+			if (curr == nullptr) {
+				tail = ptr;
+			}
+
+		}
+
+		return true;
+	}
+	bool is_ascending()const noexcept {
+		if (count < 2)return true;
+		ListNode* ptr = head;
+		while ( ptr->next!=nullptr) {
+			if (ptr->data > ptr->next->data)return false;
+			ptr = ptr->next;
+		}
+		return true;
+	}
+	bool is_descending()const noexcept {
+		if (count < 2)return true;
+		ListNode* ptr = head;
+		while (ptr->next != nullptr) {
+			if (ptr->data < ptr->next->data)return false;
+			ptr = ptr->next;
+		}
+		return true;
+	}
+	bool is_sorted()const noexcept {
+		if (count < 2)return true;
+
+		ListNode* ptr = head;
+		bool asc = true;
+		bool desc = false;
+
+		while (ptr->next != nullptr) {
+			asc = asc && (ptr->data <= ptr->next->data);
+			desc = desc && (ptr->data >= ptr->next->data);
+			ptr = ptr->next;
+		}
+		return (asc || desc);
+	}
+	void remove(const _Ty& data) {
+		if (count < 1)return;
+		while (head != nullptr &&head->data==data ) {
+			this->pop_front();
+		}//empty or still have elements
+		//if it is not empty kapou mesa elems h telos 
+		if (head != nullptr)//still has
+		{
+			ListNode* prev{ head };// we no that head is no the elem
+			ListNode* curr{ head->next};
+			while (curr != nullptr ) {
+				if (curr->data == data) {
+					prev->next = curr->next;
+					count--;
+					delete curr;
+					curr = prev->next;
+					if (curr == nullptr) {//delete the last
+						tail = prev;
+					}
+				}
+				else {
+					prev = prev->next;
+					curr = curr->next;
+				}
+			}
+		
+		}
+	}
+
 
 
 
 };
-
-#endif
-_PANAGIOTIS_END
