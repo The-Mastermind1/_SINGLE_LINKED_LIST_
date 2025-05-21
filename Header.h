@@ -309,7 +309,7 @@ public:
 		if (this != &other) {
 			ListNode* curr1{ head }, * prev1{ nullptr };
 			ListNode* curr2{ other.head }, * prev2{ nullptr };
-			
+
 			while (curr1 != nullptr && curr2 != nullptr) {
 
 				curr1->data = curr2->data;
@@ -526,9 +526,9 @@ public:
 		while (curr != nullptr && curr->data < val) {
 			prev = curr;
 			curr = curr->next;
-			
+
 		}
-		if (curr!=nullptr  &&curr->data==val) { return false; }
+		if (curr != nullptr && curr->data == val) { return false; }
 		ListNode* ptr = new ListNode(val);
 		if (ptr == nullptr)return false;
 		count++;
@@ -551,7 +551,7 @@ public:
 	bool is_ascending()const noexcept {
 		if (count < 2)return true;
 		ListNode* ptr = head;
-		while ( ptr->next!=nullptr) {
+		while (ptr->next != nullptr) {
 			if (ptr->data > ptr->next->data)return false;
 			ptr = ptr->next;
 		}
@@ -582,15 +582,15 @@ public:
 	}
 	void remove(const _Ty& data) {
 		if (count < 1)return;
-		while (head != nullptr &&head->data==data ) {
+		while (head != nullptr && head->data == data) {
 			this->pop_front();
 		}//empty or still have elements
 		//if it is not empty kapou mesa elems h telos 
 		if (head != nullptr)//still has
 		{
 			ListNode* prev{ head };// we no that head is no the elem
-			ListNode* curr{ head->next};
-			while (curr != nullptr ) {
+			ListNode* curr{ head->next };
+			while (curr != nullptr) {
 				if (curr->data == data) {
 					prev->next = curr->next;
 					count--;
@@ -605,7 +605,36 @@ public:
 					curr = curr->next;
 				}
 			}
-		
+
+		}
+	}
+	template<typename _Pr1>
+	void remove_if(_Pr1 pred) {
+		if (count < 1)return;
+		while (head != nullptr && pred(head->data)) {
+			this->pop_front();
+		}//empty or still have elements
+		//if it is not empty kapou mesa elems h telos 
+		if (head != nullptr)//still has
+		{
+			ListNode* prev{ head };// we no that head is no the elem
+			ListNode* curr{ head->next };
+			while (curr != nullptr) {
+				if (pred(curr->data)) {
+					prev->next = curr->next;
+					count--;
+					delete curr;
+					curr = prev->next;
+					if (curr == nullptr) {//delete the last
+						tail = prev;
+					}
+				}
+				else {
+					prev = prev->next;
+					curr = curr->next;
+				}
+			}
+
 		}
 	}
 
