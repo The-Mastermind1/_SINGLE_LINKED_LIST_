@@ -9,7 +9,7 @@
 #include<queue>
 #include<vector>
 _PANAGIOTIS_BEGIN
-
+#if __cplusplus > 202002L
 template<typename _Ty>
 class SingleLinkedList {
 private:
@@ -613,3 +613,5 @@ public:
 
 
 };
+#endif
+_PANAGIOTIS_END
