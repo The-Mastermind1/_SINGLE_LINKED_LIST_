@@ -494,20 +494,20 @@ public:
 	bool insert(const _Ty& val) {
 		ListNode* curr{ head };
 		ListNode* prev{ nullptr };
-
+	
 		while (curr != nullptr && curr->data < val) {
 			prev = curr;
 			curr = curr->next;
-
+	
 		}
-		ListNode* ptr = new ListNode(val);
+		ListNode* ptr = new(std::nothrow)ListNode(val);
 		if (ptr == nullptr)return false;
 		count++;
 		if (prev == nullptr) {
 			head = ptr;
 			head->next = curr;
 			if (curr == nullptr) { tail = ptr; }
-		}
+			}
 		else {
 			prev->next = ptr;
 			ptr->next = curr;
@@ -529,7 +529,7 @@ public:
 
 		}
 		if (curr != nullptr && curr->data == val) { return false; }
-		ListNode* ptr = new ListNode(val);
+		ListNode* ptr = new(std::nothrow) ListNode(val);
 		if (ptr == nullptr)return false;
 		count++;
 		if (prev == nullptr) {
@@ -637,6 +637,45 @@ public:
 
 		}
 	}
+	void  merge(SingleLinkedList<_Ty> &other) {
+		if (empty() && other.empty())return;
+		if (!is_ascending() || !other.is_ascending()) {
+			throw sequence_not_ordered{ "sequence_not_ordered" };
+		}
+		count += other.count;
+		ListNode* Head{ new(std::nothrow) ListNode{} };
+		if (Head == nullptr)return;
+		ListNode* ptr{ Head };
+		ListNode* curr1{ head };
+		ListNode* curr2{ other.head };
+		while (curr1 != nullptr && curr2 != nullptr) {
+			if (curr1->data < curr2->data) {
+				ptr->next = curr1;
+				ptr = ptr->next;
+				curr1 = curr1->next;
+			}
+			else {
+				ptr->next = curr2;
+				ptr = ptr->next;
+				curr2 = curr2->next;
+			}
+
+		}
+		if (curr1 == nullptr) {
+			ptr->next = curr2;
+			tail = other.tail;
+		}
+		if (curr2 == nullptr) {
+			ptr->next = curr1;
+		}
+		other.head = nullptr;
+		other.count = 0;
+		other.tail = nullptr;
+		ptr = Head;
+		head = Head->next;
+		delete ptr;
+	}
+	
 
 
 
