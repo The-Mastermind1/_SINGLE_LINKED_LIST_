@@ -611,7 +611,7 @@ public:
 	template<typename _Pr1>
 	void remove_if(_Pr1 pred) {
 		if (count < 1)return;
-		while (head != nullptr && pred(head->data)) {
+		while (head != nullptr && pred(std::as_const(head->data))) {
 			this->pop_front();
 		}//empty or still have elements
 		//if it is not empty kapou mesa elems h telos 
@@ -620,7 +620,7 @@ public:
 			ListNode* prev{ head };// we no that head is no the elem
 			ListNode* curr{ head->next };
 			while (curr != nullptr) {
-				if (pred(curr->data)) {
+				if (pred(std::as_const(curr->data))) {
 					prev->next = curr->next;
 					count--;
 					delete curr;
