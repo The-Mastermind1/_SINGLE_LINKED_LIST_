@@ -1283,8 +1283,6 @@ _PANAGIOTIS_END
 
 
 
-
-
 #pragma once 
 #include<iostream>
 #include<functional>
@@ -1817,6 +1815,43 @@ private:
 		//end of the list 
 		return nullptr;
 	}
+	template<typename Compare>
+	void merge_lists(single_linked_list<_Ty>&other,Compare comp) {
+		if (this == &other)return;
+		if (empty() && other.empty())return;
+		if (!is_ascending() || !other.is_ascending()) {
+			throw sequence_not_ordered{ "sequence_not_ordered in ascending order" };
+		}
+		count += other.count;
+		list_node* Head{ new(std::nothrow) list_node {} };
+		if (Head == nullptr)return;
+		list_node* ptr{ Head };
+		list_node* curr1{ head };
+		list_node* curr2{ other.head };
+		while (curr1 != nullptr && curr2 != nullptr) {
+			if (comp(std::as_const(curr1->data), std::as_const(curr2->data))) {
+				ptr->next = curr1;
+				ptr = ptr->next;
+				curr1 = curr1->next;
+			}
+			else {
+				ptr->next = curr2;
+				ptr = ptr->next;
+				curr2 = curr2->next;
+			}
+		}
+		if (curr1 == nullptr && curr2 != nullptr) {
+			ptr->next = curr2;
+			tail = other.tail;
+		}
+		if (curr2 == nullptr && curr1 != nullptr) {
+			ptr->next = curr1;
+		}
+		head = Head->next;
+		delete Head;
+		other.head = other.tail = nullptr;
+		other.count = 0;
+	}
 public:
 	using iterator = list_node_iterator;
 	static_assert(std::is_object_v<_Ty>, "The C++ Standard forbids container adaptors of non-object types "
@@ -1883,10 +1918,21 @@ public:
 	template<typename _Pred1>
 	void remove_if(_Pred1 _Pred);
 	//
+	void merge(single_linked_list<_Ty>& other);
+	//
+	void merge(single_linked_list<_Ty>&& other);
+	//
+	template<typename Compare>
+	void merge(single_linked_list<_Ty>& other, Compare comp);
+	//
+	template<typename Compare>
+	void merge(single_linked_list<_Ty>&& other, Compare comp);
+	//
 	bool empty()const noexcept {
 		//checks if list is empty 
 		return count == 0;
 	}
+	//
 	std::size_t size()const noexcept {
 		//returns the size of the list 
 		return count;
@@ -2305,12 +2351,29 @@ bool single_linked_list<_Ty>::is_sorted()const noexcept {
 	return asc || desc;
 	
 }
+//
+template<typename _Ty>
+template<typename Compare>
+void single_linked_list<_Ty>::merge(single_linked_list<_Ty>& other, Compare comp) {
+	merge_lists(other, comp);
+}
+//
+template<typename _Ty>
+template<typename Compare>
+void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other, Compare comp) {
+	merge_lists(other, comp);
+}
+//
+template<typename _Ty>
+void single_linked_list<_Ty>::merge(single_linked_list<_Ty>& other) {
+	merge_lists(other, std::less<>{});
+}
+//
+template<typename _Ty>
+
+void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other) {
+	merge_lists(other, std::less<>{});
+}
+//
 _PANAGIOTIS_END
-
-
-
-
-
-
-
 
