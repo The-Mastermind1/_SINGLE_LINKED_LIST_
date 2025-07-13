@@ -30,3 +30,7 @@ AN entrire single_linked_list with all the basic features:
 19) is_ascending_ checks if the elements are in ascending order using a compare func<br>
 20) is_descending_ checks if the elements are in descending order using a compare func<br>
 21) is sorted checks if the elements are either sorted in  ascending or descending order<br>
+
+# 👥CONTRIBUTORS:
+
+~The-Mastermind1
