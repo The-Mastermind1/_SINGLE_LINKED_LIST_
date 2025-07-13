@@ -2,13 +2,13 @@
 # Simple SINGLE LINKED LIST  header that i created using C++
 AN entrire single_linked_list with all the basic features:
 <br>
-1) an  inside class of the simple list node with constructors<br>
+1. an  inside class of the simple list node with constructors<br>
 ~the default<br>
 ~with const element<br>
 ~with move element<br>
 ~and a private constructor used to craft the object in place
 <br>
-2) an inside class of simple iterator (pretty much a wrapper around a pointer that points to a node or to nothing nullptr)
+2. an inside class of simple iterator (pretty much a wrapper around a pointer that points to a node or to nothing nullptr)
    with the iterator you have access to change the element or to see it and advance
    operations supported: operator ++ ,!=,==,*,+=,->,+,copy operator and move operator and a simple destructor
    <br>
