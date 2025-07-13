@@ -509,21 +509,15 @@ private:
 	}
 	//delete_duplicates func done 
 	template<typename _Pred1>
-	void delete_duplicates(_Pred1 _Pred)noexcept {
+	void delete_duplicates(_Pred1 _Pred) {
 		//this func simply does two things
 		//it is called by two funcs one that uses the std::equal<>() in order
 		//to compare elements with the default 
 		//and the other uses a pred to compare the elements if they are equal 
-		static_assert(std::is_nothrow_destructible_v<_Ty>,
-			"the object must be destructible and must not throw exception");
-		static_assert(std::is_invocable_r_v<bool, _Pred1, const _Ty&,
-		const _Ty&>,"you must be able to call the func pred for the curr->data");
-		//static asserts to see if all goes good 
-		static_assert(std::is_convertible_v<
-			std::invoke_result_t<_Pred1, const _Ty&,const _Ty&>, bool>, 
-			"the return type of"
-			"the func must be a boolean");
-
+		//the _Pred func should be able to be called with two const _Ty& args
+		//and the return type of this func should be bool or else the behavior is
+		//undefined
+		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
 		if (count < 2)return;//no duplicates 
 		//we pretty much have to pointers prev,curr
 		//prev show at head and curr to head ->next
@@ -560,11 +554,9 @@ private:
 		//generally both methos calls the erase_node_if with a pred 
 		//the remove passes a simple lambda that checks if they are simply equal
 		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
-		static_assert(std::is_invocable_r_v<bool, _Pr1, const _Ty& > ,
-			"you must be able to call the func pred for the curr->data and head->data");
-		static_assert(std::is_convertible_v<
-			std::invoke_result_t<_Pr1, const _Ty&>,bool>,"the return type of"
-			"the func must be a boolean");
+		//the _Pred func should be able to be called with one const _Ty& arg
+		//and the return type of this func should be bool or else the behavior is
+		//undefined
 		//if you keep finding the element at the start delete it 
 		while (head != nullptr && _Pred(std::as_const(head->data))) {
 			pop_front();
