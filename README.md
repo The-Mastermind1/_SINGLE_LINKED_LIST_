@@ -9,7 +9,8 @@ AN entrire single_linked_list with all the basic features:
 ~and a private constructor used to craft the object in place<br>
 3) an inside class of simple iterator (pretty much a wrapper around a pointer that points to a node or to nothing nullptr)
    with the iterator you have access to change the element or to see it and advance
-   operations supported: operator ++ ,!=,==,*,+=,->,+,copy operator and move operator and a simple destructor <br>
+   operations supported: operator ++ ,!=,==,*,+=,->,+,copy operator and move operator and a simple destructor
+   <br>
 4) another inside class of a simple const iterator (pretty much a wrapper around a pointer that points to a node or to nothing nullptr)
     with this kind of iterator you can just get the element for reading not writing it also supports same operations with the other iterator <br>
 <br>
