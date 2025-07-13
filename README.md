@@ -13,7 +13,7 @@ AN entrire single_linked_list with all the basic features:
 4) another inside class of a simple const iterator (pretty much a wrapper around a pointer that points to a node or to nothing nullptr)
     with this kind of iterator you can just get the element for reading not writing it also supports same operations with the other iterator <br>
 <br>
-5)3 private members head,tail,count <br>
+5) 3 private members head,tail,count <br>
 6)push_back function which put the element at the end <br>
 7)push_front functions  which put the element at the start of the list <br>
 8)pop_front which delete the first element of the list <br>
