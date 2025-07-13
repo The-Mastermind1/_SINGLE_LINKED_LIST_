@@ -9,12 +9,12 @@
 #include<initializer_list>
 #include<memory>
 #include"Macros.h"
-#if __cplusplus > 202002L
+
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
 class single_linked_list final{
 private:
-	class list_node final{
+	class list_node final{//list node class done 
 	private:
 		class secretClass {};
 		template<class ..._Valty>
@@ -35,19 +35,17 @@ private:
 			static_assert(std::is_default_constructible_v<_Ty>, "the type"
 				"must be default constructible in order to use this constructor");
 		}
-		list_node(const _Ty& item)noexcept(std::is_nothrow_copy_assignable_v<_Ty>)
-			:next{}
+		list_node(const _Ty& item)noexcept(std::is_nothrow_copy_constructible_v<_Ty>)
+			:data{item},next {}
 		{
-			static_assert(std::is_copy_assignable_v<_Ty>,
-				"the type must be copy assignable in order to use this constructor");
-			data = item;
+			static_assert(std::is_copy_constructible_v<_Ty>,
+				"the type must be copy constructible in order to use this constructor");
 		}
-		list_node(_Ty&& item)noexcept(std::is_nothrow_move_assignable_v<_Ty>)
-			:next{}
+		list_node(_Ty&& item)noexcept(std::is_nothrow_move_constructible_v<_Ty>)
+			:data{std::move(item)}, next{}
 		{
-			static_assert(std::is_move_assignable_v<_Ty>
-				, "the type must be move assignable in order to use this constructor");
-			data = std::move(item);
+			static_assert(std::is_move_constructible_v<_Ty>
+				, "the type must be move constructible in order to use this constructor");
 		}
 		template<class ..._Valty>
 		static list_node* craft(_Valty&& ..._Val) {
@@ -310,11 +308,11 @@ private:
 			ptr = nullptr;
 		}
 	};
-	//{
+	// private members
 	list_node* head;
 	list_node* tail;
 	std::size_t count;
-	//}
+	//
 	//push_back_node done 
 	template<typename _Valty>
 	bool push_back_node(_Valty&& _Val) 
@@ -685,6 +683,8 @@ private:
 		//point to the new list the node call Head is to make the code a little bit 
 		//easier ,we take its elements from the list and we compare the minimum goes first
 		//then we advnace and then the next minimum beetween the two lists and then the next
+		//the comp func should be a func that can be called by two args const _Ty&
+		//and const _Ty& and the return type should be bool else the behavior is undefined
 		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
 		if (this == &other)return;
 		if (other.empty())return;
@@ -728,13 +728,8 @@ private:
 		//and determine if they are sorted in ascending order
 		//we use the method curr,prev in order to compare its element
 		//the default value of the comparator is std::less_equal<>{}
-		static_assert(std::is_invocable_r_v<bool, Compare, const _Ty&,
-			const _Ty&>, "you must be able to call the func comp for the *prev and *curr");
-		//static asserts to see if all goes good 
-		static_assert(std::is_convertible_v<
-			std::invoke_result_t<Compare, const _Ty&, const _Ty&>, bool>,
-			"the return type of"
-			"the func must be a boolean");
+		//the comp func should be a func that can be called by two args const _Ty&
+		//and const _Ty& and the return type should be bool else the behavior is undefined
 		if (count < 2)return true;
 		iterator prev = begin();
 		iterator curr = begin() + 1;
@@ -753,12 +748,8 @@ private:
 		//and determine if they are sorted in descending order
 		//we use the method curr,prev in order to compare its element
 		//the default value of the comparator is std::greater_equal<>{}
-		static_assert(std::is_invocable_r_v<bool, Compare, const _Ty&,
-			const _Ty&>, "you must be able to call the func comp for the *prev and *curr"); 
-		static_assert(std::is_convertible_v<
-			std::invoke_result_t<Compare, const _Ty&, const _Ty&>, bool>,
-			"the return type of"
-			"the func must be a boolean");
+		//the comp func should be a func that can be called by two args const _Ty&
+		//and const _Ty& and the return type should be bool else the behavior is undefined
 		if (count < 2)return true;
 		iterator prev = begin();
 		iterator curr = begin() + 1;
@@ -778,19 +769,8 @@ private:
 		//we use the method curr,prev in order to compare its element
 		//the default values of the comparators is std::less_equal<>{} and 
 		// std::greater_equal<>{}
-		static_assert(std::is_invocable_r_v<bool, Compare1, const _Ty&,
-			const _Ty&>, "you must be able to call the func comp1 for the *prev and *curr");
-		static_assert(std::is_convertible_v<
-			std::invoke_result_t<Compare1, const _Ty&, const _Ty&>, bool>,
-			"the return type of"
-			"the func must be a boolean");
-		static_assert(std::is_invocable_r_v<bool, Compare2, const _Ty&,
-			const _Ty&>, "you must be able to call the func comp2 for the *prev and *curr");
-		//static asserts to see if all goes good 
-		static_assert(std::is_convertible_v<
-			std::invoke_result_t<Compare2, const _Ty&, const _Ty&>, bool>,
-			"the return type of"
-			"the func must be a boolean");
+		//the comp funcs should be a func that can be called by two args const _Ty&
+		//and const _Ty& and the return type should be bool else the behavior is undefined
 		if (count < 2)return true;
 		iterator prev = begin();
 		iterator curr = begin() + 1;
@@ -1347,5 +1327,5 @@ void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other) {
 }
 //
 _PANAGIOTIS_END
-#endif
+
 
