@@ -9,7 +9,7 @@
 #include<initializer_list>
 #include<memory>
 #include"Macros.h"
-
+#if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
 class single_linked_list final{
@@ -1347,5 +1347,5 @@ void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other) {
 }
 //
 _PANAGIOTIS_END
-
+#endif
 
