@@ -1,13 +1,12 @@
 #pragma once
 #include<exception>
 #include<string>
-#include<concepts>
 #define _NODISCARD [[nodiscard]]
 
 #define _CONSTEXPR constexpr
 #define _PANAGIOTIS_BEGIN namespace panagiotis{
 #define _PANAGIOTIS_END }
-#if __cplusplus > 202002L
+//#if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 
 class pop_from_an_empty_list :public std::exception
@@ -43,32 +42,38 @@ public:
         return errorMessage.c_str();
     }
 };
+class tried_to_access_an_empty_iterator_ :public std::exception
+{
+private:
+    std::string errorMessage; // To store the error message
+public:
+    //Constructor to initialize the error message
+    explicit tried_to_access_an_empty_iterator_(const std::string& message)
+        : errorMessage(message) {
+    }
+
+    // Override the what() method
+    const char* what() const noexcept override {
+        return errorMessage.c_str();
+    }
+};
+
 class sequence_not_ordered :public std::exception
 {
 private:
-	std::string errorMessage; // To store the error message
+    std::string errorMessage; // To store the error message
 public:
-	//Constructor to initialize the error message
-	explicit sequence_not_ordered(const std::string& message)
-		: errorMessage(message) {
-	}
+    //Constructor to initialize the error message
+    explicit sequence_not_ordered(const std::string& message)
+        : errorMessage(message) {
+    }
 
-	// Override the what() method
-	const char* what() const noexcept override {
-		return errorMessage.c_str();
-	}
+    // Override the what() method
+    const char* what() const noexcept override {
+        return errorMessage.c_str();
+    }
 };
 
-
-//begin
-
-template<typename _Ty>
-concept Comparable = requires(_Ty a, _Ty b) {
-    { a == b }-> std::convertible_to<bool>;
-};
-
-
-//end
 
 _PANAGIOTIS_END
-#endif
+//#endif
