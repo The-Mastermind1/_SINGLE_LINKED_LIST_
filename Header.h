@@ -9,7 +9,7 @@
 #include<initializer_list>
 #include<memory>
 #include"Macros.h"
-#if __cplusplus > 202002L
+
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
 class single_linked_list final{
@@ -561,7 +561,7 @@ private:
 		//the remove passes a simple lambda that checks if they are simply equal
 		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
 		static_assert(std::is_invocable_r_v<bool, _Pr1, const _Ty& > ,
-			"you must be able to call the func pred for the curr->data");
+			"you must be able to call the func pred for the curr->data and head->data");
 		static_assert(std::is_convertible_v<
 			std::invoke_result_t<_Pr1, const _Ty&>,bool>,"the return type of"
 			"the func must be a boolean");
@@ -1327,4 +1327,5 @@ void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other) {
 }
 //
 _PANAGIOTIS_END
-#endif
+
+
