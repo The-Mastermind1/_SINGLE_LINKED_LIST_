@@ -1,1288 +1,3 @@
-//tasks: make emplace back and front, more type_trais use and iterators when ??
-#pragma once
-#include"Header1.h"
-#include<iostream>
-#include<utility>
-#include<cstdlib>
-#include<type_traits>
-#include<new>
-#include<initializer_list>
-#include<queue>
-#include<vector>
-_PANAGIOTIS_BEGIN
-#if __cplusplus > 202002L
-template<typename _Ty>
-class SingleLinkedList {
-private:
-	class ListNode {
-	private:
-		class secretClass {};
-		template<class ..._Valty>
-		ListNode(secretClass, _Valty&& ..._Val) :data{ std::forward<_Valty>(_Val)... }, next{ nullptr }
-		{
-			//constructs the object in place
-		}
-	public:
-		_Ty data;
-		ListNode* next;
-		ListNode(const _Ty& item)noexcept(noexcept(data = item))
-			:next{ nullptr }
-		{
-
-			data = item;
-		}
-		ListNode(_Ty&& item) noexcept(noexcept(data = std::move(item)))
-			:next{ nullptr }
-		{
-
-			data = std::move(item);
-		}
-		template<class ..._Valty>
-		static ListNode* craft(_Valty&& ..._Val) {
-
-			ListNode* ptr = new ListNode{ secretClass{},std::forward<_Valty>(_Val)... };
-			return ptr;
-
-		}
-	};
-	std::size_t count;
-	ListNode* head;
-	ListNode* tail;
-public:
-	static_assert(std::is_object_v<_Ty>, "The C++ Standard forbids container adaptors of non-object types "
-		"because of [container.requirements].");
-	static_assert(!std::is_reference_v<_Ty>, "no references allowed");
-	static_assert(!std::is_const_v<_Ty>, "no const types are allowed");
-	static_assert(!std::is_volatile_v<_Ty>, "no volatile types are allowed");
-
-	SingleLinkedList()noexcept :count{ 0 }, head{ nullptr }, tail{ nullptr } {
-
-	}
-	SingleLinkedList(const std::initializer_list<_Ty>& l) :head{ nullptr }, tail{ nullptr }, count{ 0 }
-	{
-		const _Ty* b = l.begin();
-		for (std::size_t i = 0; i < l.size(); i++) {
-			if (push_back(*b)) {
-				b++;
-			}
-			else {
-				this->~SingleLinkedList();
-				break;
-			}
-
-		}
-	}
-	SingleLinkedList(const SingleLinkedList<_Ty>& other) :count{ 0 }, head{ nullptr }, tail{ nullptr }
-	{
-		if (this != &other) {
-			ListNode* ptr1{ other.head };
-
-			while (ptr1 != nullptr) {
-
-				if (!this->emplace_back(ptr1->data)) {
-					this->clear();
-					break;
-				}
-				ptr1 = ptr1->next;
-
-			}
-		}
-	}
-	SingleLinkedList(SingleLinkedList<_Ty>&& other)noexcept :count{ 0 }, head{ nullptr }, tail{ nullptr }
-	{
-		if (this != &other) {
-			head = other.head;
-			tail = other.tail;
-			count = other.count;
-			other.head = other.tail = nullptr;
-			other.count = 0;
-		}
-	}
-
-	bool push_back(const _Ty& data)
-	{
-		ListNode* ptr = new (std::nothrow)ListNode(data);
-		if (count != 0) {
-			if (ptr != nullptr) {
-				tail->next = ptr;
-				tail = tail->next;
-				count++;
-				return true;
-			}
-		}
-		else {
-			if (ptr != nullptr) {
-				head = tail = ptr;
-				count++;
-				return true;
-			}
-		}
-		return false;
-	}
-	bool push_back(_Ty&& data)
-	{
-		ListNode* ptr = new (std::nothrow)ListNode(std::move(data));
-		if (count != 0) {
-			if (ptr != nullptr) {
-				tail->next = ptr;
-				tail = tail->next;
-				count++;
-				return true;
-			}
-		}
-		else {
-			if (ptr != nullptr) {
-				head = tail = ptr;
-				count++;
-				return true;
-			}
-		}
-		return false;
-	}
-	bool push_front(const _Ty& data) {
-		ListNode* ptr = new (std::nothrow)ListNode(data);
-		if (count != 0) {
-			if (ptr != nullptr) {
-				ptr->next = head;
-				head = ptr;
-				count++;
-				return true;
-			}
-		}
-		else {
-			if (ptr != nullptr) {
-				head = tail = ptr;
-				count++;
-				return true;
-			}
-		}
-		return false;
-	}
-	bool push_front(_Ty&& data) {
-		ListNode* ptr = new (std::nothrow)ListNode(std::move(data));
-		if (count != 0) {
-			if (ptr != nullptr) {
-				ptr->next = head;
-				head = ptr;
-				count++;
-				return true;
-			}
-		}
-		else {
-			if (ptr != nullptr) {
-				head = tail = ptr;
-				count++;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	void pop_front()
-	{
-		if (count != 0) {
-			ListNode* ptr = head;
-			head = head->next;
-			if (count == 1) {
-				tail = nullptr;
-			}
-			count--;
-			delete ptr;
-		}
-		else {
-			throw pop_from_an_empty_list{ "tried to pop from an empty list" };
-		}
-	}
-	void pop_back()
-	{
-		if (count != 0) {
-			delete tail;
-			count--;
-			if (count == 0) {
-				tail = nullptr;
-				head = nullptr;
-				return;
-			}
-			tail = head;
-
-
-			for (std::size_t i = 0; i < count - 1; i++) {
-				tail = tail->next;
-			}
-			tail->next = nullptr;
-		}
-		else {
-			throw pop_from_an_empty_list{ "tried to pop from an empty list" };
-		}
-	}
-
-	_NODISCARD std::size_t size()const noexcept {
-		return count;
-	}
-	_NODISCARD bool empty()const noexcept {
-		return count == 0;
-	}
-
-	_NODISCARD _Ty back()&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(tail->data);
-
-	}
-	_NODISCARD const _Ty back()const&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(tail->data);
-
-	}
-	_NODISCARD const _Ty& back()const& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return tail->data;
-
-	}
-	_NODISCARD _Ty& back()& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return tail->data;
-
-	}
-
-	_NODISCARD const _Ty& front()const& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return head->data;
-
-	}
-	_NODISCARD _Ty& front()& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return head->data;
-
-	}
-	_NODISCARD _Ty front()&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(head->data);
-
-	}
-	_NODISCARD _Ty front()const&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(head->data);
-
-	}
-
-	void show() {
-		ListNode* ptr = head;
-		while (ptr != nullptr) {
-			std::cout << ptr->data << '\n';
-			ptr = ptr->next;
-		}
-	}
-	~SingleLinkedList()noexcept {
-		this->clear();
-	}
-	void clear()noexcept {
-		ListNode* ptr;
-		for (std::size_t i = 0; i < count; i++) {
-			ptr = head;
-			head = head->next;
-			delete ptr;
-		}
-		head = tail = nullptr;
-		count = 0;
-	}
-	void swap(SingleLinkedList& other)noexcept {
-		std::swap(head, other.head);
-		std::swap(tail, other.tail);
-		std::swap(count, other.count);
-	}
-	SingleLinkedList<_Ty>& operator =(const SingleLinkedList<_Ty>& other)& {
-		if (this != &other) {
-			ListNode* curr1{ head }, * prev1{ nullptr };
-			ListNode* curr2{ other.head }, * prev2{ nullptr };
-
-			while (curr1 != nullptr && curr2 != nullptr) {
-
-				curr1->data = curr2->data;
-				prev1 = curr1;
-				prev2 = curr2;
-				curr1 = curr1->next;
-				curr2 = curr2->next;
-
-			}
-
-			if (prev1 == nullptr && curr2 != nullptr) {//o allos exei na mas dosei
-
-				while (curr2 != nullptr) {
-
-					if (!this->emplace_back(curr2->data)) {
-						break;
-					}
-					curr2 = curr2->next;
-				}
-				return *this;
-
-			}
-			if (prev2 == nullptr && curr1 != nullptr) { //exoume perrita
-
-				this->clear();
-				return *this;
-			}
-			if (curr1 != nullptr && curr2 == nullptr) {
-
-				tail = prev1;
-				tail->next = nullptr;
-				while (curr1 != nullptr) {
-					ListNode* ptr{ curr1 };
-					curr1 = curr1->next;
-					delete ptr;
-					count--;
-
-				}
-				return *this;
-			}
-			if (curr2 != nullptr && curr1 == nullptr) {
-				while (curr2 != nullptr) {
-
-					if (!this->emplace_back(curr2->data)) {
-						this->clear();
-						break;
-					}
-					curr2 = curr2->next;
-				}
-				return *this;
-			}
-
-
-
-		}
-		return *this;
-	}
-
-	SingleLinkedList<_Ty>& operator =(SingleLinkedList<_Ty>&& other) & noexcept
-	{
-		this->clear();
-		if (other.count != 0) {
-			head = other.head;
-			tail = other.tail;
-			count = other.count;
-			other.head = other.tail = nullptr;
-			other.count = 0;
-		}
-		return *this;
-	}
-
-	//std::size_t remove(const _Ty& val) {
-	//	static_assert(Comparable<_Ty>, "type must support == operator");
-
-	//	std::size_t nodeCount = 0;
-	//	if (count == 1) {
-	//		if (head->data == val)this->~SingleLinkedList();
-	//		return 1;
-	//	}//polla nodes ara
-	//	while (head->data == val) {
-	//		nodeCount++;
-	//		this->pop_front();
-	//		if (head == nullptr)break;
-	//	}
-	//	if (tail == nullptr)return nodeCount;
-	//	while (tail->data == val) {
-	//		nodeCount++;
-	//		this->pop_back();
-	//	}
-
-
-	//	ListNode* ptr = head;
-
-	//	while (ptr != nullptr) {
-	//		while (ptr->next != nullptr) {
-
-	//			if (ptr->next->data == val) {
-
-	//				nodeCount++;
-	//				ListNode* ptr2 = ptr->next;
-	//				ptr->next = ptr->next->next;
-
-	//				delete ptr2;
-	//				count--;
-	//			}
-	//			else {
-	//				ptr = ptr->next;
-	//			}
-	//		}
-	//		break;
-	//	}
-
-
-	//	return nodeCount;
-	//}
-	void reverse()noexcept {
-		if (count > 1) {
-			ListNode* prev = nullptr;
-			ListNode* curr = head;
-			tail = head;
-
-			while (curr != nullptr) {
-				ListNode* next = curr->next;
-				curr->next = prev;
-				prev = curr;
-				curr = next;
-			}
-
-			head = prev;
-		}
-
-
-
-	}
-
-
-	template<class ..._Valty>
-	bool emplace_back(_Valty&&..._Val) {
-
-		ListNode* ptr = ListNode::craft(std::forward<_Valty>(_Val)...);
-
-		if (count != 0) {
-			if (ptr != nullptr) {
-				tail->next = ptr;
-				tail = tail->next;
-				count++;
-				return true;
-			}
-		}
-		else {
-			if (ptr != nullptr) {
-				head = tail = ptr;
-				count++;
-				return true;
-			}
-		}
-		return false;
-	}
-	template<class ..._Valty>
-	bool emplace_front(_Valty&&..._Val) {
-
-		ListNode* ptr = ListNode::craft(std::forward<_Valty>(_Val)...);
-
-		if (count != 0) {
-			if (ptr != nullptr) {
-				ptr->next = head;
-				head = ptr;
-				count++;
-				return true;
-			}
-		}
-		else {
-			if (ptr != nullptr) {
-				head = tail = ptr;
-				count++;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	bool insert(const _Ty& val) {
-		ListNode* curr{ head };
-		ListNode* prev{ nullptr };
-	
-		while (curr != nullptr && curr->data < val) {
-			prev = curr;
-			curr = curr->next;
-	
-		}
-		ListNode* ptr = new(std::nothrow)ListNode(val);
-		if (ptr == nullptr)return false;
-		count++;
-		if (prev == nullptr) {
-			head = ptr;
-			head->next = curr;
-			if (curr == nullptr) { tail = ptr; }
-			}
-		else {
-			prev->next = ptr;
-			ptr->next = curr;
-			if (curr == nullptr) {
-				tail = ptr;
-			}
-
-		}
-
-		return true;
-	}
-	bool add_unique(const _Ty& val) {
-		ListNode* curr{ head };
-		ListNode* prev{ nullptr };
-
-		while (curr != nullptr && curr->data < val) {
-			prev = curr;
-			curr = curr->next;
-
-		}
-		if (curr != nullptr && curr->data == val) { return false; }
-		ListNode* ptr = new(std::nothrow) ListNode(val);
-		if (ptr == nullptr)return false;
-		count++;
-		if (prev == nullptr) {
-			head = ptr;
-			head->next = curr;
-			if (curr == nullptr) { tail = ptr; }
-		}
-		else {
-			prev->next = ptr;
-			ptr->next = curr;
-			if (curr == nullptr) {
-				tail = ptr;
-			}
-
-		}
-
-		return true;
-	}
-	bool is_ascending()const noexcept {
-		if (count < 2)return true;
-		ListNode* ptr = head;
-		while (ptr->next != nullptr) {
-			if (ptr->data > ptr->next->data)return false;
-			ptr = ptr->next;
-		}
-		return true;
-	}
-	bool is_descending()const noexcept {
-		if (count < 2)return true;
-		ListNode* ptr = head;
-		while (ptr->next != nullptr) {
-			if (ptr->data < ptr->next->data)return false;
-			ptr = ptr->next;
-		}
-		return true;
-	}
-	bool is_sorted()const noexcept {
-		if (count < 2)return true;
-
-		ListNode* ptr = head;
-		bool asc = true;
-		bool desc = false;
-
-		while (ptr->next != nullptr) {
-			asc = asc && (ptr->data <= ptr->next->data);
-			desc = desc && (ptr->data >= ptr->next->data);
-			ptr = ptr->next;
-		}
-		return (asc || desc);
-	}
-	void remove(const _Ty& data) {
-		if (count < 1)return;
-		while (head != nullptr && head->data == data) {
-			this->pop_front();
-		}//empty or still have elements
-		//if it is not empty kapou mesa elems h telos 
-		if (head != nullptr)//still has
-		{
-			ListNode* prev{ head };// we no that head is no the elem
-			ListNode* curr{ head->next };
-			while (curr != nullptr) {
-				if (curr->data == data) {
-					prev->next = curr->next;
-					count--;
-					delete curr;
-					curr = prev->next;
-					if (curr == nullptr) {//delete the last
-						tail = prev;
-					}
-				}
-				else {
-					prev = prev->next;
-					curr = curr->next;
-				}
-			}
-
-		}
-	}
-	template<typename _Pr1>
-	void remove_if(_Pr1 pred) {
-		if (count < 1)return;
-		while (head != nullptr && pred(std::as_const(head->data))) {
-			this->pop_front();
-		}//empty or still have elements
-		//if it is not empty kapou mesa elems h telos 
-		if (head != nullptr)//still has
-		{
-			ListNode* prev{ head };// we no that head is no the elem
-			ListNode* curr{ head->next };
-			while (curr != nullptr) {
-				if (pred(std::as_const(curr->data))) {
-					prev->next = curr->next;
-					count--;
-					delete curr;
-					curr = prev->next;
-					if (curr == nullptr) {//delete the last
-						tail = prev;
-					}
-				}
-				else {
-					prev = prev->next;
-					curr = curr->next;
-				}
-			}
-
-		}
-	}
-	void  merge(SingleLinkedList<_Ty> &other) {
-		if (empty() && other.empty())return;
-		if (!is_ascending() || !other.is_ascending()) {
-			throw sequence_not_ordered{ "sequence_not_ordered" };
-		}
-		count += other.count;
-		ListNode* Head{ new(std::nothrow) ListNode{} };
-		if (Head == nullptr)return;
-		ListNode* ptr{ Head };
-		ListNode* curr1{ head };
-		ListNode* curr2{ other.head };
-		while (curr1 != nullptr && curr2 != nullptr) {
-			if (curr1->data < curr2->data) {
-				ptr->next = curr1;
-				ptr = ptr->next;
-				curr1 = curr1->next;
-			}
-			else {
-				ptr->next = curr2;
-				ptr = ptr->next;
-				curr2 = curr2->next;
-			}
-
-		}
-		if (curr1 == nullptr) {
-			ptr->next = curr2;
-			tail = other.tail;
-		}
-		if (curr2 == nullptr) {
-			ptr->next = curr1;
-		}
-		other.head = nullptr;
-		other.count = 0;
-		other.tail = nullptr;
-		ptr = Head;
-		head = Head->next;
-		delete ptr;
-	}
-	
-
-
-
-
-};
-#endif
-_PANAGIOTIS_END
-
-/*
-#pragma once
-#include<iostream>
-#include<cstdlib>
-#include<type_traits>
-#include<algorithm>
-#include<functional>
-#include<utility>
-#include<new>
-#include<initializer_list>
-#include"Macros.h"
-
-_PANAGIOTIS_BEGIN
-template<typename _Ty>
-class single_linked_list final{
-private:
-	class list_node final {
-	public:
-		_Ty data;
-		list_node* next;
-		list_node() :data{}, next{}
-		{}
-		list_node(const _Ty& item)noexcept(noexcept(data=item)) :next{}
-		{
-			data = item;
-		}
-		list_node(_Ty&& item)noexcept(noexcept(data=std::move(item))) :next{}
-		{
-			data = std::move(item);
-		}
-	};
-	list_node* head;
-	list_node* tail;
-	std::size_t count;
-	template<class _Valty>
-	bool push_back_node(_Valty &&_Val) {
-		list_node* ptr{ new (std::nothrow)list_node(std::forward<_Valty>(_Val)) };
-		if (ptr != nullptr) {
-			if (head==nullptr) {
-				head=ptr;
-			}
-			else {
-				tail->next = ptr;
-			}
-			tail = ptr;
-			count++;
-			return true;
-		}
-		return false;
-	}
-	template<class _Valty>
-	bool push_front_node(_Valty&& _Val) {
-		list_node* ptr{ new (std::nothrow)list_node(std::forward<_Valty>(_Val)) };
-		if (ptr != nullptr) {
-			ptr->next = head;
-			head = ptr;
-			if (tail == nullptr)tail = ptr;
-			count++;
-			return true;
-		}
-		return false;
-	}
-	void pop_front_node() {
-		if (count != 0) {
-			list_node* ptr{ head };
-			head = head->next;
-			delete ptr;
-			if (head == nullptr)tail = nullptr;
-			count--;
-			return;
-		}
-		throw pop_from_an_empty_list{ "tried to pop from an empty list" };
-	}
-	void pop_back_node() {
-		if (count != 0) {
-			count--;
-			delete tail;
-			if (count == 0) {
-				head = tail = nullptr;
-				return;
-			}
-			tail = head;
-			for (std::size_t i = 0; i < count - 1; i++) {
-				tail = tail->next;
-			}
-			tail->next = nullptr;
-			return;
-			
-		}
-		throw pop_from_an_empty_list{ "tried to pop from an empty list" };
-	}
-	void clear()noexcept {
-		list_node* ptr{};
-		while (head != nullptr) {
-			ptr = head;
-			head = head->next;
-			delete ptr;
-		}
-		tail = nullptr;
-		count = 0;
-	}
-	void reverse_linked_list()noexcept {
-		if (count < 2)return;
-		tail = head;
-		list_node* ptr1{ head };
-		list_node* ptr2{ head->next };
-		while (ptr2 != nullptr) {
-			ptr1->next = ptr2->next;
-			ptr2->next = head;
-			head = ptr2;
-			ptr2 = ptr1->next;
-
-		}
-		return;
-	}
-	
-	bool insert_element(const _Ty& data) {
-		list_node* ptr{ new(std::nothrow)list_node(data) };
-		if (ptr == nullptr)return false;
-		list_node* prev{ nullptr };
-		list_node* curr{ head };
-		while (curr != nullptr && curr->data < data) {
-			prev = curr;
-			curr = curr->next;
-		}
-		
-		count++;
-		if (prev == nullptr) {
-			ptr->next = head;
-			head = ptr;
-			if (tail == nullptr)tail = ptr;
-				
-		}
-		else {
-			ptr->next = curr;
-			prev->next=ptr;
-			if (curr == nullptr) {
-				tail = ptr;
-			}
-		}
-		return true;
-	}
-	bool add_unique_node(const _Ty&data) {
-		list_node* ptr{ new(std::nothrow)list_node(data) };
-		if (ptr == nullptr)return false;
-		list_node* prev{ nullptr };
-		list_node* curr{ head };
-		while (curr != nullptr && curr->data < data) {//searching the position to put it 
-			prev = curr;
-			curr = curr->next;
-		}
-		list_node* ptr1{ curr };//an yparxei,eidh
-		while (ptr1 != nullptr) {
-			if (ptr1->data == data)return false;
-			ptr1 = ptr1->next;
-		}
-
-		count++;
-		if (prev == nullptr) {
-			ptr->next = head;
-			head = ptr;
-			if (tail == nullptr)tail = ptr;
-
-		}
-		else {
-			ptr->next = curr;
-			prev->next = ptr;
-			if (curr == nullptr) {
-				tail = ptr;
-			}
-		}
-		return true;
-
-
-	}
-	void erase_node(const _Ty&data)noexcept {
-		while (head != nullptr && head->data == data) {
-			pop_front_node();
-		}
-		if (head != nullptr) {
-			list_node* prev{ head};
-			list_node* curr{ head->next };
-			while (curr != nullptr) {
-				if (curr->data == data) {//exo match prepei na to kano delete
-					count--;
-					prev->next = curr->next;
-					delete curr;
-					curr = prev->next;
-					
-					
-				}
-				else {
-					prev = curr;
-					curr = curr->next;
-				}
-			}
-			tail = prev;
-		}
-	}
-	template<typename _Pr1>
-	void erase_node_if(_Pr1 pred) {
-		while (head != nullptr && pred(std::as_const(head->data))) {
-			pop_front();
-		}//empty or still have elements
-		//if it is not empty kapou mesa elems h telos 
-		if (head != nullptr)//still has
-		{
-			list_node* prev{ head };// we no that head is no the elem
-			list_node* curr{ head->next };
-			while (curr != nullptr) {
-				if (pred(std::as_const(curr->data))) {//exo match prepei na to kano delete
-					count--;
-					prev->next = curr->next;
-					delete curr;
-					curr = prev->next;
-				
-
-				}
-				else {
-					prev = curr;
-					curr = curr->next;
-				}
-			}
-			tail = prev;
-
-		}
-	}
-	void merge_in_place(single_linked_list<_Ty>& other) {
-		if (this == &other)return;
-		if (empty() && other.empty())return;
-		if (!is_ascending() || !other.is_ascending())return;
-		list_node* dummy{ new (std::nothrow)list_node{} };
-		if (dummy == nullptr)return;
-		list_node* ptr{ dummy };
-		list_node* curr1{ head };
-		list_node* curr2{ other.head };
-		while (curr1 != nullptr && curr2 != nullptr) {
-			if (curr1->data <= curr2->data) {
-				ptr->next = curr1;
-				ptr = ptr->next;
-				curr1 = curr1->next;
-			}
-			else {
-				ptr->next = curr2;
-				ptr = ptr->next;
-				curr2 = curr2->next;
-			}
-		}
-		if (curr1 == nullptr &&curr2!=nullptr) {
-			ptr->next = curr2;
-			tail = other.tail;
-		}
-		if (curr2 == nullptr && curr1!=nullptr) {
-			ptr->next = curr1;
-		}
-		head = dummy->next;
-		count = count + other.count;
-		delete dummy;
-		other.head = other.tail = nullptr;
-		other.count = 0;
-	}
-	void delete_duplicates()noexcept {
-		if (count < 2)return;
-		list_node* prev{ head };
-		list_node* curr{ head->next };
-		while (curr != nullptr) {
-			if (prev->data == curr->data) {//duplicate put out
-				count--;
-				prev->next = curr->next;
-				delete curr;
-				curr = prev->next;
-			}
-			else {
-				prev = prev->next;
-				curr = curr->next;
-			}
-		}
-		tail = prev;
-		return;
-	}
-	std::size_t  merge_in_place(const single_linked_list<_Ty>& other1,
-		const single_linked_list<_Ty>& other2) {
-		if (this == &other1 || this == &other2)return 0;
-		if (other1.empty() && other2.empty())return 0;
-		if (!other1.is_ascending() && !other2.is_ascending())return 0;
-		
-		clear();
-		list_node* curr1{ other1.head };
-		list_node* curr2{ other2.head };
-		while (curr1 != nullptr &&curr2!=nullptr) {
-			if(curr1->data<=curr2->data){
-				if (!push_back(curr1->data)) {
-					clear();
-					return 0;
-				}
-				curr1 = curr1->next;
-			}
-			else {
-				if (!push_back(curr2->data)) {
-					clear();
-					return 0 ;
-				}
-				curr2 = curr2->next;
-			}
-		}
-		while (curr1 != nullptr) {
-			if (!push_back(curr1->data)) {
-				clear();
-				return 0;
-			}
-			curr1 = curr1->next;
-		}
-		while (curr2 != nullptr) {
-			if (!push_back(curr2->data)) {
-				clear();
-				return 0;
-			}
-			curr2 = curr2->next;
-		}
-		return count;//the count of nodes that merged
-	}
-
-	void merge_two_lists_unique_elements(const single_linked_list<_Ty>& other1,
-		const single_linked_list<_Ty>& other2) {
-		if (this == &other1 || this == &other2)return;
-		if (other1.empty() && other2.empty())return;
-		if (!other1.is_ascending() || !other2.is_ascending())return;
-		
-		clear();
-		list_node* curr1{ other1.head };
-		list_node* curr2{ other2.head };
-
-		
-	}
-
-public:
-	single_linked_list()noexcept :head{}, tail{}, count{}
-	{}
-	single_linked_list(const std::initializer_list<_Ty>& l) :head{}, tail{}, count{} {
-		const _Ty* ptr{ l.begin() };
-		for (std::size_t i = 0; i < l.size(); i++) {
-			if (!push_back(*ptr)) {
-				clear();
-				break;
-			}
-			ptr++;
-		}
-	}
-	single_linked_list(const single_linked_list<_Ty>& other) :head{}, tail{}, count{} {
-		list_node* ptr{ other.head };
-		while (ptr != nullptr) {
-			if (!push_back(ptr->data)) {
-				clear();
-				break;
-			}
-			ptr = ptr->next;
-		}
-		
-	}
-	single_linked_list(single_linked_list<_Ty>&& other)noexcept :head{}, tail{}, count{} {
-		std::swap(head, other.head);
-		std::swap(count, other.count);
-		std::swap(tail, other.tail);
-	}
-	bool push_back(const _Ty& data) {
-		return push_back_node(data);
-	}
-	bool push_back(_Ty&& data) {
-		return push_back_node(std::move(data));
-	}
-	bool push_front(const _Ty&data) {
-		return push_front_node(data);
-	}
-	bool push_front(_Ty&&data){
-		return push_front_node(std::move(data));
-	}
-	void pop_front() {
-		pop_front_node();
-	}
-	void pop_back() {
-		pop_back_node();
-	}
-	bool empty() const noexcept{
-		return size() == 0;
-	}
-	std::size_t size()const noexcept {
-		return count;
-	}
-	_NODISCARD _Ty&& back()&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(tail->data);
-
-	}
-	_NODISCARD const _Ty&& back()const&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(tail->data);
-
-	}
-	_NODISCARD const _Ty& back()const& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return tail->data;
-
-	}
-	_NODISCARD _Ty& back()& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return tail->data;
-
-	}
-
-	_NODISCARD const _Ty& front()const& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return head->data;
-
-	}
-	_NODISCARD _Ty& front()& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return head->data;
-
-	}
-	_NODISCARD _Ty&& front()&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(head->data);
-
-	}
-	_NODISCARD const _Ty&& front()const&& {
-		if (count == 0) {
-			throw tried_to_access_an_empty_list_{ "tried to access  an empty list" };
-		}
-		return std::move(head->data);
-
-	}
-	~single_linked_list()noexcept {
-		clear();
-	}
-	void swap(single_linked_list<_Ty>& other)noexcept {
-		std::swap(head, other.head);
-		std::swap(tail, other.tail);
-		std::swap(count, other.count);
-	}
-	single_linked_list<_Ty>& operator =(const single_linked_list<_Ty>& other)& {
-		if (this != &other) {
-			list_node* prev1{ nullptr };
-			list_node* prev2{ nullptr };
-			list_node* curr1{ head };
-			list_node* curr2{ other.head };
-			while (curr1 != nullptr && curr2 != nullptr) {
-				curr1->data = curr2->data;
-				prev1 = curr1;
-				prev2 = curr2;
-				curr1 = curr1->next;
-				curr2 = curr2->next;
-			}
-			if (prev1 == nullptr && curr2 != nullptr ||curr2!=nullptr &&curr1==nullptr) {
-				while (curr2 != nullptr) {
-					if (!push_back(curr2->data)) {
-						clear();
-						break;
-					}
-					curr2 = curr2->next;
-				}
-				return *this;
-			}
-			if (prev2 == nullptr && curr1 != nullptr) {
-				clear();
-				return *this;
-			}
-			if (curr1 != nullptr && curr2 == nullptr) {//size>other.size,sbhse perittous
-				prev1->next = nullptr;
-				tail = prev1;
-				while (curr1 != nullptr) {
-					list_node* ptr{ curr1 };
-					curr1 = curr1->next;
-					delete ptr;
-					count--;
-				}
-				return *this;
-			}
-
-		}
-		return *this;
-	}
-	single_linked_list<_Ty>& operator =(single_linked_list<_Ty>&& other)& {
-		clear();
-		std::swap(head, other.head);
-		std::swap(count, other.count);
-		std::swap(tail, other.tail);
-		return *this;
-	}
-	void show() {
-		list_node* ptr{ head };
-		while (ptr != nullptr) {
-			std::cout << ptr->data << '\n';
-			ptr = ptr->next;
-		}
-
-	}
-	void reverse()noexcept {//head->1,2,3,4 tail<-
-		reverse_linked_list();
-	}
-	bool is_ascending()const noexcept {
-		if (count < 2)return true;
-		list_node *prev{ head };
-		list_node* curr{ head->next };
-		while (curr != nullptr && prev->data <= curr->data) {
-			prev = curr;
-			curr = curr->next;
-		}
-		if (curr != nullptr)return false;
-		return true;
-	}
-	bool is_descending()const noexcept {
-		if (count < 2)return true;
-		list_node* prev{ head };
-		list_node* curr{ head->next };
-		while (curr != nullptr && prev->data >= curr->data) {
-			prev = curr;
-			curr = curr->next;
-		}
-		if (curr != nullptr)return false;
-		return true;
-	}
-	bool is_sorted()const noexcept {
-		if (count < 2)return true;
-		list_node* prev{ head };
-		list_node* curr{ head->next };
-		bool is_ascending = true;
-		bool is_descending = true;
-		while (curr != nullptr) {
-			is_ascending = is_ascending && prev->data <= curr->data;
-			is_descending = is_descending && prev->data >= curr->data;
-			prev = curr;
-			curr = curr->next;
-		}
-		return is_ascending || is_descending;
-		
-	}
-	bool insert(const _Ty& data) {
-		return insert_element(data);
-		
-	}
-	bool add_unique(const _Ty& data) {
-		return add_unique_node(data);
-	}
-	void erase(const _Ty& data)noexcept {
-		erase_node(data);
-	}
-	void merge(single_linked_list<_Ty>& other) {
-		merge_in_place(other);
-	}
-	void merge(const single_linked_list<_Ty>& other1
-		, const single_linked_list<_Ty>& other2) {
-		merge_in_place(other1, other2);
-
-	}
-	void merge_unique(const single_linked_list<_Ty>& other1
-		, const single_linked_list<_Ty>& other2) {
-		merge_two_lists_unique_elements(other1,other2);
-	}
-	template<typename _Pr1>
-	void erase_if(_Pr1 pred) {
-		erase_node_if(pred);
-	}
-	void erase_duplicates()noexcept {
-		delete_duplicates();
-	}
-	std::size_t count_items()const noexcept {
-		list_node* ptr{ head };
-		std::size_t node_count = 0;
-		while (ptr != nullptr) {
-			node_count++;
-			ptr = ptr->next;
-		}
-		return node_count;
-	}
-};
-
-
-
-_PANAGIOTIS_END
-*/
-
-
-
-
 #pragma once 
 #include<iostream>
 #include<functional>
@@ -1297,7 +12,7 @@ _PANAGIOTIS_END
 
 _PANAGIOTIS_BEGIN
 template<typename _Ty>
-class single_linked_list{
+class single_linked_list final{
 private:
 	class list_node final{
 	private:
@@ -1355,7 +70,7 @@ private:
 		list_node* ptr;
 	public:
 		//
-		list_node_iterator()noexcept :ptr{} {}
+		list_node_iterator()noexcept :ptr{nullptr} {}
 		//
 		list_node_iterator(list_node* ptr1)noexcept :ptr{ ptr1 } {}
 		//
@@ -1482,9 +197,124 @@ private:
 			ptr = nullptr;
 		}
 	};
+	//thats my own const_iterator class
+	//pretty much it is just a wrapper arroung my pointer 
+	//it also has operator ++ in order to advance the pointer 
+	//it also has += in order to progress it even further
+	//it also has != and == for comparisons and operator *
+	//with references qualifiers only for const 
+	// ,pretty much all that matters is where the pointer
+	//shows and remember this iterator is only to get the element not change it  
+	class list_node_const_iterator final {
+	private:
+		list_node* ptr;
+	public:
+		//
+		list_node_const_iterator()noexcept :ptr{} {}
+		//
+		list_node_const_iterator(list_node* ptr1)noexcept :ptr{ ptr1 } {}
+		//
+		list_node_const_iterator(const list_node_const_iterator& other)noexcept = default;
+		//
+		list_node_const_iterator(list_node_const_iterator&& other)noexcept = default;
+		//
+		list_node_const_iterator operator ++() noexcept {
+			if (ptr != nullptr) {
+				ptr = ptr->next;
+			}
+			return list_node_const_iterator{ ptr };
+		}
+		//
+		list_node_const_iterator operator ++(int)noexcept {
+			list_node_const_iterator tmp{ ptr };
+			if (ptr != nullptr) {
+				ptr = ptr->next;
+			}
+			return tmp;
+		}
+		//
+		bool operator !=(const list_node_const_iterator& other)const noexcept {
+			return ptr != other.ptr;
+		}
+		//
+		bool operator ==(const list_node_const_iterator& other)const noexcept {
+			return ptr == other.ptr;
+		}
+		//
+		const _Ty& operator *()const& {
+			if (ptr != nullptr) {
+				return ptr->data;
+			}
+			throw tried_to_access_an_empty_iterator_{ "tried to access an empty iterator" };
+		}
+		//
+		const _Ty&& operator *()const&& {
+			if (ptr != nullptr) {
+				return std::move(ptr->data);
+			}
+			throw tried_to_access_an_empty_iterator_{ "tried to access an empty iterator" };
+		}
+		//
+		list_node_const_iterator operator +=(std::size_t counter)noexcept {
+			for (std::size_t i = 0; i < counter; i++) {
+				if (ptr != nullptr)ptr = ptr->next;
+				else break;
+			}
+			return list_node_const_iterator{ ptr };
+		}
+		//
+		const _Ty* operator ->()const& {
+			if (ptr != nullptr) {
+				return std::addressof(ptr->data);
+			}
+			throw tried_to_access_an_empty_iterator_{ "tried to access an empty iterator" };
+		}
+		//
+		const _Ty* operator ->()const&& {
+			if (ptr != nullptr) {
+				return std::addressof(ptr->data);
+			}
+			throw tried_to_access_an_empty_iterator_{ "tried to access an empty iterator" };
+		}
+		//
+		list_node_const_iterator operator +(std::size_t counter)noexcept {
+			list_node* curr{ ptr };
+			for (std::size_t i = 0; i < counter; i++) {
+				if (curr != nullptr)curr = curr->next;
+				else break;
+			}
+			return list_node_const_iterator{ curr };
+		}
+		//
+		friend list_node_const_iterator operator +(std::size_t counter, const
+			list_node_const_iterator & it)noexcept {
+			list_node curr{ it.ptr };
+			for (std::size_t i = 0; i < counter; i++) {
+				if (curr != nullptr)curr = curr->next;
+				else break;
+			}
+			return list_node_const_iterator{ curr };
+		}
+		//
+		list_node_const_iterator operator =(const list_node_const_iterator& other)noexcept {
+			ptr = other.ptr;
+			return *this;
+		}
+		//
+		list_node_const_iterator operator =(list_node_const_iterator&& other)noexcept {
+			ptr = other.ptr;
+			return *this;
+		}
+		//
+		~list_node_const_iterator()noexcept {
+			ptr = nullptr;
+		}
+	};
+	//{
 	list_node* head;
 	list_node* tail;
 	std::size_t count;
+	//}
 	//push_back_node done 
 	template<typename _Valty>
 	bool push_back_node(_Valty&& _Val) 
@@ -1799,29 +629,66 @@ private:
 		}
 		return false;
 	}
+	//start func done 
 	list_node_iterator start()const noexcept{
-		//start of the list
-		return head;
-	}
-	list_node_iterator start()noexcept {
+		
 		//start of the list 
 		return head;
 	}
+	//start func done 
+	list_node_iterator start()noexcept {
+		
+		//start of the list 
+		return head;
+	}
+	//finish func done 
 	list_node_iterator finish()noexcept {
 		//end of the list
 		return nullptr;
 	}
+	//finish func done 
 	list_node_iterator finish()const noexcept{
 		//end of the list 
 		return nullptr;
 	}
+	//cstart func done 
+	list_node_const_iterator cstart()const noexcept {
+		//start of the list 
+		return head;
+	}
+	//cstart func done 
+	list_node_const_iterator cstart()noexcept {
+		//start of the list 
+		return head;
+	}
+	//cfinish func done 
+	list_node_const_iterator cfinish()noexcept {
+		//end of the list
+		return nullptr;
+	}
+	//cfinish func done 
+	list_node_const_iterator cfinish()const noexcept {
+		//end of the list 
+		return nullptr;
+	}
+	//merge_lists func done 
 	template<typename Compare>
 	void merge_lists(single_linked_list<_Ty>&other,Compare comp) {
+		//this func simply merges two sorted lists in ascending order
+		//the rules are simple we can merge to ourselves
+		//the other must not by empty whats the point
+		//both must be in ascending order
+		//this func uses a comparator in order to compare elements 
+		//the default comparator is std::less_equal<>{} and std::greater_equal<>{}
+		//we create a new dummy list and we grow it with our elements
+		//when the progress ends the other list points to nothing while this
+		//point to the new list the node call Head is to make the code a little bit 
+		//easier ,we take its elements from the list and we compare the minimum goes first
+		//then we advnace and then the next minimum beetween the two lists and then the next
+		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
 		if (this == &other)return;
-		if (empty() && other.empty())return;
-		if (!is_ascending() || !other.is_ascending()) {
-			throw sequence_not_ordered{ "sequence_not_ordered in ascending order" };
-		}
+		if (other.empty())return;
+		if (!is_ascending_(comp) || !other.is_ascending_(comp))return;
 		count += other.count;
 		list_node* Head{ new(std::nothrow) list_node {} };
 		if (Head == nullptr)return;
@@ -1840,19 +707,106 @@ private:
 				curr2 = curr2->next;
 			}
 		}
+		//whatever left we just give it because we now have only onel list
 		if (curr1 == nullptr && curr2 != nullptr) {
 			ptr->next = curr2;
-			tail = other.tail;
+			tail = other.tail;//dont forget the tail
 		}
 		if (curr2 == nullptr && curr1 != nullptr) {
 			ptr->next = curr1;
+			//the tail already points where we want it to be
 		}
 		head = Head->next;
-		delete Head;
+		delete Head;//don't forget to delete the extra node
 		other.head = other.tail = nullptr;
 		other.count = 0;
 	}
+	//is_ascending_ func done
+	template<typename Compare>
+	bool is_ascending_(Compare comp)const {
+		//this is a func that takes a comparator in order to compare the elements
+		//and determine if they are sorted in ascending order
+		//we use the method curr,prev in order to compare its element
+		//the default value of the comparator is std::less_equal<>{}
+		static_assert(std::is_invocable_r_v<bool, Compare, const _Ty&,
+			const _Ty&>, "you must be able to call the func comp for the *prev and *curr");
+		//static asserts to see if all goes good 
+		static_assert(std::is_convertible_v<
+			std::invoke_result_t<Compare, const _Ty&, const _Ty&>, bool>,
+			"the return type of"
+			"the func must be a boolean");
+		if (count < 2)return true;
+		iterator prev = begin();
+		iterator curr = begin() + 1;
+		while (curr != end() && comp(std::as_const(*prev),std::as_const(*curr)))//<= 
+		{
+			prev++;
+			curr++;
+		}
+		if (curr != end())return false;//we are not at the end so not in ascending order
+		return true;
+	}
+	//is_descending_ func done 
+	template<typename Compare>
+	bool is_descending_(Compare comp) const{
+		//this is a func that takes a comparator in order to compare the elements
+		//and determine if they are sorted in descending order
+		//we use the method curr,prev in order to compare its element
+		//the default value of the comparator is std::greater_equal<>{}
+		static_assert(std::is_invocable_r_v<bool, Compare, const _Ty&,
+			const _Ty&>, "you must be able to call the func comp for the *prev and *curr"); 
+		static_assert(std::is_convertible_v<
+			std::invoke_result_t<Compare, const _Ty&, const _Ty&>, bool>,
+			"the return type of"
+			"the func must be a boolean");
+		if (count < 2)return true;
+		iterator prev = begin();
+		iterator curr = begin() + 1;
+		while (curr != end() && comp(std::as_const(*prev),std::as_const(*curr)))//>= 
+		{
+			prev++;
+			curr++;
+		}
+		if (curr != end())return false;//we are not at the end so not in descending order
+		return true;
+	}
+	//is_sorted_ func 
+	template<typename Compare1,typename Compare2>
+	bool is_sorted_(Compare1 comp1, Compare2 comp2)const {
+		//this is a func that takes two comparators in order to compare the elements
+		//and determine if they are sorted in descending  and ascending order
+		//we use the method curr,prev in order to compare its element
+		//the default values of the comparators is std::less_equal<>{} and 
+		// std::greater_equal<>{}
+		static_assert(std::is_invocable_r_v<bool, Compare1, const _Ty&,
+			const _Ty&>, "you must be able to call the func comp1 for the *prev and *curr");
+		static_assert(std::is_convertible_v<
+			std::invoke_result_t<Compare1, const _Ty&, const _Ty&>, bool>,
+			"the return type of"
+			"the func must be a boolean");
+		static_assert(std::is_invocable_r_v<bool, Compare2, const _Ty&,
+			const _Ty&>, "you must be able to call the func comp2 for the *prev and *curr");
+		//static asserts to see if all goes good 
+		static_assert(std::is_convertible_v<
+			std::invoke_result_t<Compare2, const _Ty&, const _Ty&>, bool>,
+			"the return type of"
+			"the func must be a boolean");
+		if (count < 2)return true;
+		iterator prev = begin();
+		iterator curr = begin() + 1;
+		bool asc = true;
+		bool desc = true;
+		//this checks in one pass if they are sorted 
+		while (curr != end()) {
+			asc = asc && comp1(std::as_const(*prev),std::as_const(*curr));//<=
+			desc = desc && comp2(std::as_const(*prev),std::as_const(*curr));//>=
+			prev++;
+			curr++;
+		}
+		return asc || desc;
+	}
 public:
+	using const_iterator = list_node_const_iterator;
 	using iterator = list_node_iterator;
 	static_assert(std::is_object_v<_Ty>, "The C++ Standard forbids container adaptors of non-object types "
 		"because of [container.requirements].");
@@ -1876,11 +830,20 @@ public:
 	//
 	single_linked_list<_Ty>& operator=(const std::initializer_list<_Ty>& other)&;
 	//
-	bool is_ascending()const noexcept;
+	bool is_ascending()const ;
 	//
-	bool is_descending()const noexcept;
+	template<typename Compare>
+	bool is_ascending(Compare comp)const;
 	//
-	bool is_sorted()const noexcept;
+	bool is_descending()const;
+	//
+	template<typename Compare>
+	bool is_descending(Compare comp)const;
+	//
+	bool is_sorted()const ;
+	//
+	template<typename Compare1,typename Compare2 >
+	bool is_sorted(Compare1 comp1,Compare2 comp2)const;
 	//
 	bool push_back(const _Ty&data);
 	//
@@ -2023,7 +986,25 @@ public:
 		return finish();
 	}
 	//
-	
+	const_iterator cbegin()const noexcept {
+
+		return cstart();
+	}
+	//
+	const_iterator cbegin()noexcept {
+
+		return cstart();
+	}
+	//
+	const_iterator cend()const noexcept {
+
+		return cfinish();
+	}
+	//
+	const_iterator cend() noexcept {
+		return cfinish();
+	}
+	//
 };
 //default constructor done ,pretty much default state of the object 
 template<typename _Ty>
@@ -2083,6 +1064,7 @@ single_linked_list<_Ty>::~single_linked_list()noexcept {
 //push back done
 template<typename _Ty>
 bool single_linked_list<_Ty>::push_back(const _Ty& data) {
+
 	return push_back_node(data);
 }
 //push back done
@@ -2308,72 +1290,62 @@ single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(const std::initializ
 	
 	return *this;
 }
-//is_ascending func done
+//is_ascending func done 
 template<typename _Ty>
-bool single_linked_list<_Ty>::is_ascending() const noexcept {
-	if (count < 2)return true;
-	iterator prev = begin();
-	iterator curr = begin() + 1;
-	while (curr != end()&& *prev<=*curr) {	
-		prev++;
-		curr++;
-	}
-	if (curr != end())return false;
-	return true;
+bool single_linked_list<_Ty>::is_ascending()const {
+	return is_ascending_(std::less_equal<>{});
 }
-//is_descending func done
+//is_ascending func done 
 template<typename _Ty>
-bool single_linked_list<_Ty>::is_descending()const noexcept {
-	if (count < 2)return true;
-	iterator prev = begin();
-	iterator curr = begin() + 1;
-	while (curr != end()&&*prev>=*curr) {
-		prev++;
-		curr++;
-	}
-	if (curr != end())return false;
-	return true;
+template<typename Compare>
+bool single_linked_list<_Ty>::is_ascending(Compare comp)const {
+	return is_ascending_(comp);
+}
+//is_descending func done 
+template<typename _Ty>
+bool single_linked_list<_Ty>::is_descending()const {
+	return is_descending_(std::greater_equal<>{});
+}
+//is_descending func done 
+template<typename _Ty>
+template<typename Compare>
+bool single_linked_list<_Ty>::is_descending(Compare comp)const {
+	return is_descending_(comp);
 }
 //is_sorted func done 
 template<typename _Ty>
-bool single_linked_list<_Ty>::is_sorted()const noexcept {
-	if (count < 2)return true;
-	iterator prev = begin();
-	iterator curr = begin() + 1;
-	bool asc = true;
-	bool desc = true;
-	while (curr != end()) {
-		asc = asc && *prev <= *curr;
-		desc = desc && *prev >= *curr;
-		prev++;
-		curr++;
-	}
-	return asc || desc;
-	
+bool single_linked_list<_Ty>::is_sorted()const {
+	return is_sorted_(std::less_equal<>{}, std::greater_equal<>{});
 }
-//
+//is_sorted func done 
+template<typename _Ty>
+template<typename Compare1,typename Compare2>
+bool single_linked_list<_Ty>::is_sorted(Compare1 comp1,Compare2 comp2)const {
+	return is_sorted_(comp1,comp2);
+}
+//merge func done 
 template<typename _Ty>
 template<typename Compare>
 void single_linked_list<_Ty>::merge(single_linked_list<_Ty>& other, Compare comp) {
 	merge_lists(other, comp);
 }
-//
+//merge func done 
 template<typename _Ty>
 template<typename Compare>
 void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other, Compare comp) {
 	merge_lists(other, comp);
 }
-//
+//merge func done 
 template<typename _Ty>
 void single_linked_list<_Ty>::merge(single_linked_list<_Ty>& other) {
-	merge_lists(other, std::less<>{});
+	merge_lists(other, std::less_equal<>{});
 }
-//
+//merge func done
 template<typename _Ty>
-
 void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other) {
-	merge_lists(other, std::less<>{});
+	merge_lists(other, std::less_equal<>{});
 }
 //
 _PANAGIOTIS_END
+
 
