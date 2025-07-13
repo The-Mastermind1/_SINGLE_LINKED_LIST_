@@ -1,6 +1,7 @@
 #pragma once
 #include<exception>
 #include<string>
+#include<concepts>
 #define _NODISCARD [[nodiscard]]
 
 #define _CONSTEXPR constexpr
