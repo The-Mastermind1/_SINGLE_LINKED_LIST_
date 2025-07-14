@@ -1196,7 +1196,7 @@ single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(const single_linked_
 template<typename _Ty>
 single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(single_linked_list<_Ty>
 	&& other)& noexcept{
-	//we just swap the pointer pretty much we still the data
+	//we just swap the pointer pretty much we steal the data
 	//attention if we move to ourselves we lose our data 
 	clear();
 	std::swap(head, other.head);
