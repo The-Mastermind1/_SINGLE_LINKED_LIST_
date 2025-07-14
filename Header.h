@@ -358,7 +358,7 @@ private:
 		//if the list has one node ->delete the node and then head=tail=nullptr count--;
 		//if the list is not empty ->simply delete the first node and move head to point
 		//to the next 
-		static_assert(std::is_destructible_v<_Ty>,"the type must be destructible");
+		static_assert(std::is_nothrow_destructible_v<_Ty>,"the type must be destructible without throwing");
 		if (count != 0) {
 			list_node* ptr{ head };
 			head = head->next;
@@ -375,7 +375,7 @@ private:
 		//if we have one node delete tail; head=tail=nullptr;l count --;
 		//if we have more than one we have to put tail to point 
 		//into the new last node using a for loop 
-		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
+		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be destructible without throwing");
 		if (count != 0) {
 			count--;
 			delete tail;
@@ -517,7 +517,7 @@ private:
 		//the _Pred func should be able to be called with two const _Ty& args
 		//and the return type of this func should be bool or else the behavior is
 		//undefined
-		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
+		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be destructible without throwing");
 		if (count < 2)return;//no duplicates 
 		//we pretty much have to pointers prev,curr
 		//prev show at head and curr to head ->next
@@ -553,7 +553,7 @@ private:
 		//the remove_if whichs uses the pred
 		//generally both methos calls the erase_node_if with a pred 
 		//the remove passes a simple lambda that checks if they are simply equal
-		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
+		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be destructible without throwing");
 		//the _Pred func should be able to be called with one const _Ty& arg
 		//and the return type of this func should be bool or else the behavior is
 		//undefined
@@ -677,7 +677,7 @@ private:
 		//then we advnace and then the next minimum beetween the two lists and then the next
 		//the comp func should be a func that can be called by two args const _Ty&
 		//and const _Ty& and the return type should be bool else the behavior is undefined
-		static_assert(std::is_destructible_v<_Ty>, "the type must be destructible");
+		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be destructible without throwing");
 		if (this == &other)return;
 		if (other.empty())return;
 		if (!is_ascending_(comp) || !other.is_ascending_(comp))return;
@@ -1150,6 +1150,7 @@ single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(const single_linked_
 	//curr1==nullptr and curr2!=nullptr show we go to the first if 
 	static_assert(std::is_copy_assignable_v<_Ty>, "you must be able to make this operation"
 		"curr1->data=curr2->data");
+	static_assert(std::is_nothrow_destructible_v<_Ty>,"the type must be destructible without throwing");
 	if (this != &other) {
 		list_node* prev1{ nullptr };
 		list_node* prev2{ nullptr };
@@ -1222,6 +1223,7 @@ single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(const std::initializ
 	//curr1==nullptr and curr2!=other.end() show we go to the first if 
 	static_assert(std::is_copy_assignable_v<_Ty>, "you must be able to do this:"
 		"curr1->data=*curr2");
+	static_assert(std::is_nothrow_destructible_v<_Ty>,"the type must be destructible without throwing");
 		list_node* prev1{ nullptr };
 		list_node* curr1{ head };
 		const _Ty* prev2{ nullptr };
