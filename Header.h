@@ -512,7 +512,7 @@ private:
 	void delete_duplicates(_Pred1 _Pred) {
 		//this func simply does two things
 		//it is called by two funcs one that uses the std::equal_to<>() in order
-		//to compare elements with the default 
+		//to compare elements with the operator ==
 		//and the other uses a pred to compare the elements if they are equal 
 		//the _Pred func should be able to be called with two const _Ty& args
 		//and the return type of this func should be bool or else the behavior is
@@ -521,8 +521,8 @@ private:
 		if (count < 2)return;//no duplicates 
 		//we pretty much have to pointers prev,curr
 		//prev show at head and curr to head ->next
-		//and we compare those pointers until curr !=nullptr 
-		//whenever we encouter two equal based on pred we delete them and progress only 
+		//and we compare those pointers until curr ==nullptr 
+		//whenever we encouter two equals based on pred we delete them and progress only 
 		//curr else we progress curr and prev this func only works good if the results 
 		//are sorted in ascending order 
 		list_node* prev{ head };
@@ -539,7 +539,7 @@ private:
 				curr = curr->next;
 			}
 		}
-		tail = prev;//dont forget to update tail prev we always show to the tail after this 
+		tail = prev;//dont forget to update tail, prev will always show to the tail after this 
 		//because curr will be nullptr 
 		return;
 	}
