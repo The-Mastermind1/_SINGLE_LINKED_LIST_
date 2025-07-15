@@ -551,7 +551,7 @@ private:
 		//this func is called by two methods 
 		//the remove which removes all the instances of this object in the list
 		//the remove_if whichs uses the pred
-		//generally both methos calls the erase_node_if with a pred 
+		//generally both methods calls the erase_node_if with a pred 
 		//the remove passes a simple lambda that checks if they are simply equal
 		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be destructible without throwing");
 		//the _Pred func should be able to be called with one const _Ty& arg
