@@ -761,7 +761,7 @@ private:
 		//we use the method curr,prev in order to compare its element
 		//the default values of the comparators is std::less_equal<>{} and 
 		// std::greater_equal<>{}
-		//the comp funcs should be a func that can be called by two args const _Ty&
+		//the comp funcs should be funcs that can be called by two args const _Ty&
 		//and const _Ty& and the return type should be bool else the behavior is undefined
 		if (count < 2)return true;
 		iterator prev = begin();
