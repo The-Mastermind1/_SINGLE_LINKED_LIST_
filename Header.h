@@ -173,7 +173,7 @@ private:
 		//
 		friend list_node_iterator operator +(std::size_t counter, const
 			list_node_iterator& it)noexcept {
-			list_node curr{ it.ptr };
+			list_node *curr{ it.ptr };
 			for (std::size_t i = 0; i < counter; i++) {
 				if (curr != nullptr)curr = curr->next;
 				else break;
@@ -286,7 +286,7 @@ private:
 		//
 		friend list_node_const_iterator operator +(std::size_t counter, const
 			list_node_const_iterator & it)noexcept {
-			list_node curr{ it.ptr };
+			list_node *curr{ it.ptr };
 			for (std::size_t i = 0; i < counter; i++) {
 				if (curr != nullptr)curr = curr->next;
 				else break;
