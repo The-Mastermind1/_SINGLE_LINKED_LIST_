@@ -511,7 +511,7 @@ private:
 	template<typename _Pred1>
 	void delete_duplicates(_Pred1 _Pred) {
 		//this func simply does two things
-		//it is called by two funcs one that uses the std::equal<>() in order
+		//it is called by two funcs one that uses the std::equal_to<>() in order
 		//to compare elements with the default 
 		//and the other uses a pred to compare the elements if they are equal 
 		//the _Pred func should be able to be called with two const _Ty& args
