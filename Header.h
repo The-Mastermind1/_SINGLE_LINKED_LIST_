@@ -162,7 +162,7 @@ private:
 			throw tried_to_access_an_empty_iterator_{ "tried to access an empty iterator" };
 		}
 		//
-		list_node_iterator operator +(std::size_t counter)noexcept {
+		list_node_iterator operator +(std::size_t counter)const noexcept {
 			list_node* curr{ ptr };
 			for (std::size_t i = 0; i < counter; i++) {
 				if (curr != nullptr)curr = curr->next;
@@ -173,12 +173,7 @@ private:
 		//
 		friend list_node_iterator operator +(std::size_t counter, const
 			list_node_iterator& it)noexcept {
-			list_node *curr{ it.ptr };
-			for (std::size_t i = 0; i < counter; i++) {
-				if (curr != nullptr)curr = curr->next;
-				else break;
-			}
-			return list_node_iterator{ curr };
+			return it+counter;
 		}
 		//
 		list_node_iterator operator =(const list_node_iterator& other)noexcept {
@@ -275,7 +270,7 @@ private:
 			throw tried_to_access_an_empty_iterator_{ "tried to access an empty iterator" };
 		}
 		//
-		list_node_const_iterator operator +(std::size_t counter)noexcept {
+		list_node_const_iterator operator +(std::size_t counter)const noexcept {
 			list_node* curr{ ptr };
 			for (std::size_t i = 0; i < counter; i++) {
 				if (curr != nullptr)curr = curr->next;
@@ -286,12 +281,7 @@ private:
 		//
 		friend list_node_const_iterator operator +(std::size_t counter, const
 			list_node_const_iterator & it)noexcept {
-			list_node *curr{ it.ptr };
-			for (std::size_t i = 0; i < counter; i++) {
-				if (curr != nullptr)curr = curr->next;
-				else break;
-			}
-			return list_node_const_iterator{ curr };
+			return it+counter;
 		}
 		//
 		list_node_const_iterator operator =(const list_node_const_iterator& other)noexcept {
