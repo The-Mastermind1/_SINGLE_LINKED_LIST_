@@ -1128,7 +1128,7 @@ single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(const single_linked_
 	//thats the copy operator it works with the method prev curr
 	//in order to avoid unecessary allocations
 	//there 5 scenarios
-	//1 we are empty so nothing happens
+	// we are empty so nothing happens
 	//one of the lists is empty 
 	//if this empty prev1==nullptr and curr2!=nullptr and we go first if
 	//if the other one is empty prev2==nullptr then we must call the destructor in the
@@ -1201,7 +1201,7 @@ single_linked_list<_Ty>& single_linked_list<_Ty>::operator=(const std::initializ
 	//thats the copy with initializer list it works with the method prev curr
 	//in order to avoid unecessary allocations
 	//there 5 scenarios
-	//1 we are empty so nothing happens
+	// we are empty so nothing happens
 	//one of the lists is empty 
 	//if this empty prev1==nullptr and other.size()!=0 and we go first if
 	//if the other one is empty prev2==nullptr &&curr1!=nuullptr then we must call the destructor in the
