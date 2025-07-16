@@ -655,15 +655,15 @@ private:
 	template<typename Compare>
 	void merge_lists(single_linked_list<_Ty>&other,Compare comp) {
 		//this func simply merges two sorted lists in ascending order
-		//the rules are simple we can merge to ourselves
+		//the rules are simple we can't merge to ourselves
 		//the other must not by empty whats the point
 		//both must be in ascending order
 		//this func uses a comparator in order to compare elements 
-		//the default comparator is std::less_equal<>{} and std::greater_equal<>{}
+		//the default comparator is std::less_equal<>{} 
 		//we create a new dummy list and we grow it with our elements
 		//when the progress ends the other list points to nothing while this
 		//point to the new list the node call Head is to make the code a little bit 
-		//easier ,we take its elements from the list and we compare the minimum goes first
+		//easier ,we take its elements from the lists and we compare ,the minimum goes first
 		//then we advnace and then the next minimum beetween the two lists and then the next
 		//the comp func should be a func that can be called by two args const _Ty&
 		//and const _Ty& and the return type should be bool else the behavior is undefined
