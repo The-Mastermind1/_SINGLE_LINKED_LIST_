@@ -466,9 +466,13 @@ private:
 	//add_unique_node done// 
 	template<typename _Pred1>
 	bool add_unique_node(list_node_const_iterator pos, const _Ty& data, _Pred1 _Pred) {
-		//this func works pretty similar to insert_element
-		//the only difference is that we make an additional check if the element
-		//exists within the list if it not then we add it or else we do not add it
+		//this function pretty much uses the same tactic as the insert function above
+		//the only difference is that we check if the element is in the list 
+		//if it is not then we insert it
+		//this function takes a _Pred arg with default value std::equal_to<>{}
+		// that is used in order to compare
+		//this _Pred must be a func that can be called with two const _Ty& args 
+		//and the return type must be bool else the behavior is undefined
 		if (pos == cend())return false;
 		list_node* curr{ head };
 		bool  is_valid = false;
