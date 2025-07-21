@@ -59,21 +59,7 @@ public:
     }
 };
 
-class sequence_not_ordered :public std::exception
-{
-private:
-    std::string errorMessage; // To store the error message
-public:
-    //Constructor to initialize the error message
-    explicit sequence_not_ordered(const std::string& message)
-        : errorMessage(message) {
-    }
 
-    // Override the what() method
-    const char* what() const noexcept override {
-        return errorMessage.c_str();
-    }
-};
 class not_a_valid_position :public std::exception
 {
 private:
