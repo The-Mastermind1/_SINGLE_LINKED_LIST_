@@ -74,7 +74,21 @@ public:
         return errorMessage.c_str();
     }
 };
+class not_a_valid_position :public std::exception
+{
+private:
+    std::string errorMessage; // To store the error message
+public:
+    //Constructor to initialize the error message
+    explicit not_a_valid_position(const std::string& message)
+        : errorMessage(message) {
+    }
 
+    // Override the what() method
+    const char* what() const noexcept override {
+        return errorMessage.c_str();
+    }
+};
 
 _PANAGIOTIS_END
 #endif
