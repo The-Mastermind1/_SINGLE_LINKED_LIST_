@@ -977,7 +977,35 @@ public:
 	const_iterator cend() noexcept {
 		return cfinish();
 	}
-	//
+	//unsafe_insert func done// 
+	//use this func only for performance and when you 
+	//know where the iterator points be very careful
+	bool unsafe_insert(const_iterator pos, const _Ty& data) {
+		//this is again an insert function which works pretty similar to 
+		//to the insert after func but this func doesn't see if the pos you passed
+		//is valid so only use this func if you know that the iterator that you passed 
+		// points to the list that called the method and also points to an element of this list
+		// not to nothing 
+		//make sure pretty much that the iterator is valid or else the behavior is
+		//undefined
+		if (pos == cend()) {//no valid pos no insertion
+			return false;
+		}
+		list_node* ptr{ new (std::nothrow)list_node{data} };
+		if (ptr == nullptr)return false;
+		//we insert the node after the position simple
+		//doesn't matter where the pos is we insert it either somewhere in the middle
+		//or at the end no difference this code handles both scenarios
+		//if we are in middle we make the first if no need to change tail
+		//if we are at the end we change tail simply 
+		count++;
+		ptr->next = pos.ptr->next;
+		if (pos.ptr->next == nullptr) {
+			tail = ptr;
+		}
+		pos.ptr->next = ptr;
+		return true;
+	}
 };
 //default constructor done ,pretty much default state of the object 
 template<typename _Ty>
@@ -1074,19 +1102,19 @@ void single_linked_list<_Ty>::reverse()noexcept {
 //insert element done
 template<typename _Ty>
 bool single_linked_list<_Ty>::insert_after(const_iterator pos, const _Ty& data) {
-	return insert_element(pos,data);
+	return insert_element(pos, data);
 }
 //add unique done
 template<typename _Ty>
-bool single_linked_list<_Ty>::add_unique_after(const_iterator pos,const _Ty& data) {
+bool single_linked_list<_Ty>::add_unique_after(const_iterator pos, const _Ty& data) {
 	return add_unique_node(pos, data, std::equal_to<>{});
 }
 //
 template<typename _Ty>
 template<typename _Pred1>
 bool single_linked_list<_Ty>::add_unique_after(const_iterator pos, const _Ty& data,
-_Pred1 _Pred) {
-	return add_unique_node(pos, data,_Pred);
+	_Pred1 _Pred) {
+	return add_unique_node(pos, data, _Pred);
 }
 //unique func done 
 template<typename _Ty>
