@@ -55,13 +55,23 @@ private:
 		}
 
 	};
-	//thats my own iterator class
-	//pretty much it is just a wrapper arroung my pointer 
-	//it also has operator ++ in order to advance the pointer 
-	//it also has += in order to progress it even further
-	//it also has != and == for comparisons and operator *
-	//with references qualifiers ,pretty much all that matters is where the pointer
-	//shows 
+	// This is a custom iterator class.
+	// It acts as a lightweight wrapper around a raw pointer to a list node.
+	// 
+	// Supported operations:
+	// - operator++       : Advances the iterator to the next node.
+	// - operator+=       : Advances the iterator by a given number of steps.
+	// - operator*        : Dereferences the iterator to access the node's data.
+	// - operator==/!=    : Compares two iterators for equality.
+	// - Reference qualifiers are applied where appropriate.
+	// 
+	// ATTENTION:
+	// This iterator does not track validity. If it becomes invalidated 
+	// (e.g., due to node removal), it is your responsibility to ensure it 
+	// is not used in that state. Use the iterator only when you are certain 
+	// it points to a valid node or is `nullptr`. 
+	// ,pretty much all that matters is where the pointer
+	//shows and remember this iterator is only to get the element and change it also  
 	class list_node_iterator final {
 	private:
 		list_node* ptr;
@@ -190,12 +200,21 @@ private:
 			ptr = nullptr;
 		}
 	};
-	//thats my own const_iterator class
-	//pretty much it is just a wrapper arroung my pointer 
-	//it also has operator ++ in order to advance the pointer 
-	//it also has += in order to progress it even further
-	//it also has != and == for comparisons and operator *
-	//with references qualifiers only for const 
+	// This is a custom const_iterator class.
+	// It acts as a lightweight wrapper around a raw pointer to a list node.
+	// 
+	// Supported operations:
+	// - operator++       : Advances the iterator to the next node.
+	// - operator+=       : Advances the iterator by a given number of steps.
+	// - operator*        : Dereferences the iterator to access the node's data.
+	// - operator==/!=    : Compares two iterators for equality.
+	// - Reference qualifiers are applied where appropriate.
+	// 
+	// ATTENTION:
+	// This iterator does not track validity. If it becomes invalidated 
+	// (e.g., due to node removal), it is your responsibility to ensure it 
+	// is not used in that state. Use the iterator only when you are certain 
+	// it points to a valid node or is `nullptr`. 
 	// ,pretty much all that matters is where the pointer
 	//shows and remember this iterator is only to get the element not change it  
 	class list_node_const_iterator final {
@@ -775,6 +794,37 @@ private:
 		}
 		return asc || desc;
 	}
+	//erase func done//
+	bool erase(list_node_const_iterator pos) {
+		//this is an erase function that deletes the element after the pos you gave
+		//we check if the iterator is nullptr or it points to a node
+		//note that the iterator must point to the list that called the method and 
+		//must point to a valid node of that list
+		//we check this with the while, if is_valid=false; then we throw exception
+		//else we delete the node successfuly
+		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be"
+			"destructible without throwing");
+		if (pos == cend())return false;
+		list_node* curr{ head };
+		bool is_valid = false;
+		while (curr != nullptr) {
+			if (pos.ptr == curr)is_valid = true;
+			curr = curr->next;
+		}
+		if (!is_valid) {
+			throw not_a_valid_position{ "tried to insert element at an invalid"
+								 "position" };
+		}
+		count--;
+		if (pos.ptr->next == nullptr)return false;
+		list_node* ptr{ pos.ptr->next };
+		pos.ptr->next = ptr->next;
+		if (ptr->next == nullptr) {
+			tail = pos.ptr;
+		}
+		delete ptr;
+		return true;
+	}
 public:
 	using const_iterator = list_node_const_iterator;
 	using iterator = list_node_iterator;
@@ -863,6 +913,8 @@ public:
 	//
 	template<typename Compare>
 	void merge(single_linked_list<_Ty>&& other, Compare comp);
+	//
+	bool erase_after(const_iterator pos);
 	//
 	bool empty()const noexcept {
 		//checks if list is empty 
@@ -1004,6 +1056,30 @@ public:
 			tail = ptr;
 		}
 		pos.ptr->next = ptr;
+		return true;
+	}
+	//unsafe_erase func done//
+	//use this func only for performance and when you 
+	//know where the iterator points be very careful
+	bool unsafe_erase(const_iterator pos)noexcept {
+		//this function works pretty similar to the erase_after function 
+		//the only difference is that this func doesn't see if the pos you passed
+		//is valid so only use this func if you know that the iterator that you passed 
+		// points to the list that called the method and also points to an element of this list
+		// not to nothing 
+		//make sure pretty much that the iterator is valid or else the behavior is
+		//undefined
+		static_assert(std::is_nothrow_destructible_v<_Ty>, "the type must be"
+			"destructible without throwing");
+		if (pos == cend())return false;
+		count--;
+		if (pos.ptr->next == nullptr)return false;
+		list_node* ptr{ pos.ptr->next };
+		pos.ptr->next = ptr->next;
+		if (ptr->next == nullptr) {
+			tail = pos.ptr;
+		}
+		delete ptr;
 		return true;
 	}
 };
@@ -1357,4 +1433,8 @@ void single_linked_list<_Ty>::merge(single_linked_list<_Ty>&& other) {
 	merge_lists(other, std::less_equal<>{});
 }
 //
+template<typename _Ty>
+bool single_linked_list<_Ty>::erase_after(const_iterator pos) {
+	return erase(pos);
+}
 _PANAGIOTIS_END
