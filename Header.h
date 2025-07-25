@@ -71,7 +71,10 @@ private:
 	// is not used in that state. Use the iterator only when you are certain 
 	// it points to a valid node or is `nullptr`. 
 	// ,pretty much all that matters is where the pointer
-	//shows and remember this iterator is only to get the element and change it also  
+	//shows and remember this iterator is only to get the element and change it also
+	//Also one last thing, when the iterator is nullptr all the operations 
+	// supported will not work if you call them for this iterator
+	//because its nullptr now assign it to point to a valid node
 	class list_node_iterator final {
 	private:
 		list_node* ptr;
@@ -217,6 +220,9 @@ private:
 	// it points to a valid node or is `nullptr`. 
 	// ,pretty much all that matters is where the pointer
 	//shows and remember this iterator is only to get the element not change it  
+	//Also one last thing, when the iterator is nullptr all the operations 
+	// supported will not work if you call them for this iterator
+	//because its nullptr now assign it to point to a valid node 
 	class list_node_const_iterator final {
 	private:
 		list_node* ptr;
@@ -524,7 +530,7 @@ private:
 		pos.ptr->next = ptr;
 		return true;
 	}
-	//delete_duplicates func done 
+	//delete_duplicates func done// 
 	template<typename _Pred1>
 	void delete_duplicates(_Pred1 _Pred) {
 		//this func simply does two things
@@ -602,7 +608,7 @@ private:
 
 		}
 	}
-	//emplace_back_node done 
+	//emplace_back_node done// 
 	template<class ..._Valty>
 	bool emplace_back_node(_Valty&&..._Val) {
 		//emplace_back_node pretty much is the same with push
@@ -621,7 +627,7 @@ private:
 		}
 		return false;
 	}
-	//emplace_front_node done 
+	//emplace_front_node done// 
 	template<class..._Valty>
 	bool emplace_front_node(_Valty&&..._Val) {
 		//emplace_front_node pretty much is the same with push
@@ -636,49 +642,47 @@ private:
 		}
 		return false;
 	}
-	//start func done 
+	//start func done// 
 	list_node_iterator start()const noexcept {
-
 		//start of the list 
 		return head;
 	}
-	//start func done 
+	//start func done// 
 	list_node_iterator start()noexcept {
-
 		//start of the list 
 		return head;
 	}
-	//finish func done 
+	//finish func done// 
 	list_node_iterator finish()noexcept {
 		//end of the list
 		return nullptr;
 	}
-	//finish func done 
+	//finish func done// 
 	list_node_iterator finish()const noexcept {
 		//end of the list 
 		return nullptr;
 	}
-	//cstart func done 
+	//cstart func done// 
 	list_node_const_iterator cstart()const noexcept {
 		//start of the list 
 		return head;
 	}
-	//cstart func done 
+	//cstart func done //
 	list_node_const_iterator cstart()noexcept {
 		//start of the list 
 		return head;
 	}
-	//cfinish func done 
+	//cfinish func done// 
 	list_node_const_iterator cfinish()noexcept {
 		//end of the list
 		return nullptr;
 	}
-	//cfinish func done 
+	//cfinish func done// 
 	list_node_const_iterator cfinish()const noexcept {
 		//end of the list 
 		return nullptr;
 	}
-	//merge_lists func done 
+	//merge_lists func done// 
 	template<typename Compare>
 	void merge_lists(single_linked_list<_Ty>& other, Compare comp) {
 		//this func simply merges two sorted lists in ascending order
@@ -730,7 +734,7 @@ private:
 		other.head = other.tail = nullptr;
 		other.count = 0;
 	}
-	//is_ascending_ func done
+	//is_ascending_ func done//
 	template<typename Compare>
 	bool is_ascending_(Compare comp)const {
 		//this is a func that takes a comparator in order to compare the elements
@@ -750,7 +754,7 @@ private:
 		if (curr != end())return false;//we are not at the end so not in ascending order
 		return true;
 	}
-	//is_descending_ func done 
+	//is_descending_ func done// 
 	template<typename Compare>
 	bool is_descending_(Compare comp) const {
 		//this is a func that takes a comparator in order to compare the elements
@@ -770,7 +774,7 @@ private:
 		if (curr != end())return false;//we are not at the end so not in descending order
 		return true;
 	}
-	//is_sorted_ func 
+	//is_sorted_ func// 
 	template<typename Compare1, typename Compare2>
 	bool is_sorted_(Compare1 comp1, Compare2 comp2)const {
 		//this is a func that takes two comparators in order to compare the elements
