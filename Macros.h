@@ -7,7 +7,6 @@
 #define _CONSTEXPR constexpr
 #define _PANAGIOTIS_BEGIN namespace panagiotis{
 #define _PANAGIOTIS_END }
-#if __cplusplus > 202002L
 _PANAGIOTIS_BEGIN
 
 class pop_from_an_empty_list :public std::exception
@@ -77,4 +76,3 @@ public:
 };
 
 _PANAGIOTIS_END
-#endif
