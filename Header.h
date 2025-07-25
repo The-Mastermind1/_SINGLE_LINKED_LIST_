@@ -208,9 +208,11 @@ private:
 	// 
 	// Supported operations:
 	// - operator++       : Advances the iterator to the next node.
-	// - operator+=       : Advances the iterator by a given number of steps.
+	// - operator+=       : Advances the iterator forward by a given number of steps.
 	// - operator*        : Dereferences the iterator to access the node's data.
 	// - operator==/!=    : Compares two iterators for equality.
+	// - operator ->      : used to access the methods of the containd object.
+	// - operator +       : Just to return a temporary iterator to a position forward.
 	// - Reference qualifiers are applied where appropriate.
 	// 
 	// ATTENTION:
