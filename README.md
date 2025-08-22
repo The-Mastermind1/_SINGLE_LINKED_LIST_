@@ -33,4 +33,4 @@ AN entire single_linked_list with all the basic features:
 
 # 👥CONTRIBUTORS:
 
-~The-Mastermind1
+~Paltoudara
